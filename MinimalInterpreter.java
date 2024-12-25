@@ -1,3 +1,4 @@
+//for now this only works for reading and printing variables, arithmetic operations, booleans and if-else statements. I will be adding further changes later.
 import java.util.HashMap;
 import java.util.Map;
 
