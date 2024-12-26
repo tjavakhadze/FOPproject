@@ -9,7 +9,7 @@ public class MinimalInterpreter {
 
     public void eval(String code) {
         String[] lines = code.split("\n"); // splits code into individual lines
-        boolean insideIf = false; // tracks whether inside an i block
+        boolean insideIf = false; // tracks whether inside an 'if' block
         boolean ifCondition = false; // stores the result of the 'if' condition
         boolean insideWhile = false; // tracks whether inside a 'while' loop
         StringBuilder block = new StringBuilder(); // collects code within blocks
@@ -95,6 +95,7 @@ public class MinimalInterpreter {
     }
 
     private boolean evaluateCondition(String condition) {
+
         if (condition.contains("==")) { // handles equality checks
             String[] parts = condition.split("==");
             String varName = parts[0].trim(); // extract variable name
@@ -128,12 +129,27 @@ public class MinimalInterpreter {
                     return false;
                 }
             }
-        } else if (condition.equals("true")) { // constant 'true'
+        } else if (condition.contains(">")) { // handles greater-than conditions
+        String[] parts = condition.split(">");
+        String varName = parts[0].trim();
+        String expectedValue = parts[1].trim();
+
+        if (variables.containsKey(varName)) {
+            Number varValue = variables.get(varName);
+            try {
+                double expected = Double.parseDouble(expectedValue);
+                return varValue.doubleValue() > expected; // checks if greater than expected
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number format: " + expectedValue);
+                return false;
+            }
+        }
+    } else if (condition.equals("true")) { // constant 'true'
             return true;
         } else if (condition.equals("false")) { // constant 'false'
             return false;
         }
-        return false; // default condition result
+        return false;
     }
 
     private void handleAssignment(String line) {
@@ -284,15 +300,12 @@ public class MinimalInterpreter {
     public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
         String prog = """
-                 i = 0
-                while i < 5
-                 puts i
-                 i = i + 1
-                 end
-                 
-                 puts "ooo"
-                 x = 2**3
-                 puts x
+              t = 3
+            if t > 2
+              puts "yes"
+            else
+              puts "no"
+            end
                 """;
         interpreter.eval(prog); // executes the sample program
     }
