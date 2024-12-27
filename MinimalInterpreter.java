@@ -1,5 +1,4 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MinimalInterpreter {
     private final Map<String, Number> variables = new HashMap<>();
@@ -246,7 +245,7 @@ public class MinimalInterpreter {
             }
             Boolean value = evaluateBool(expression);
             boolvar.put(varName, value);
-        } else { // handles numeric assignments
+        } else {
              if(stringvar.containsKey(varName)||boolvar.containsKey(varName)){
                 stringvar.remove(varName);
                 boolvar.remove(varName);
@@ -274,65 +273,113 @@ public class MinimalInterpreter {
         return evaluateSimpleExpression(expression); // evaluate simplified expression
     }
 
-    private double evaluateSimpleExpression(String expression) {
-        if (expression.contains("**")) {
-            String[] parts = expression.split("\\*\\*");
-            double leftOperand = parseOperand(parts[0].trim());
-            double rightOperand = parseOperand(parts[1].trim());
-            return Math.pow(leftOperand, rightOperand);
-        }
+  private double evaluateSimpleExpression(String expression) {
+    expression = expression.replaceAll("\\s", ""); // Remove spaces
 
-        String[] terms = expression.split("(?=[-+*/%])|(?<=[-+*/%])"); // splits by operators
-        double result = 0.0;
-        String operator = "+"; // default operator
-
-        for (String term : terms) {
-            term = term.trim();
-            if (term.isEmpty()) continue;
-
-            if ("+-*/%".contains(String.valueOf(term.charAt(0)))) {
-                operator = term;
-            } else {
-                double operand = parseOperand(term);
-                switch (operator) {
-                    case "*":
-                        result *= operand;
-                        break;
-                    case "/":
-                        if (operand != 0) {
-                            result /= operand;
-                        } else {
-                            System.out.println("Error: Division by zero.");
-                        }
-                        break;
-                    case "%":
-                        result %= operand;
-                        break;
-                    case "+":
-                        result += operand;
-                        break;
-                    case "-":
-                        result -= operand;
-                        break;
-                }
-            }
-        }
-
-        return result;
+    while (expression.contains("**")) {
+        int opIndex = expression.indexOf("**");
+        double leftOperand = extractLeftOperand(expression, opIndex - 1);
+        double rightOperand = extractRightOperand(expression, opIndex + 2);
+        double result = Math.pow(leftOperand, rightOperand);
+        expression = replaceSubExpression(expression, opIndex, "**", result);
     }
 
-    private double parseOperand(String term) {
-        if (variables.containsKey(term)) {
-            return variables.get(term).doubleValue();
-        } else {
-            try {
-                return Double.parseDouble(term);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number format: " + term);
-                return 0;
+    String[] terms = expression.split("(?=[-+*/%])|(?<=[-+*/%])");
+    List<String> termList = new ArrayList<>(Arrays.asList(terms));
+
+    // Handle '*' '/' '%'
+    for (int i = 0; i < termList.size(); i++) {
+        String term = termList.get(i);
+        if ("*/%".contains(term)) {
+            double leftOperand = parseOperand(termList.get(i - 1));
+            double rightOperand = parseOperand(termList.get(i + 1));
+            double result;
+
+            switch (term) {
+                case "*":
+                    result = leftOperand * rightOperand;
+                    break;
+                case "/":
+                    if (rightOperand != 0) {
+                        result = leftOperand / rightOperand;
+                    } else {
+                        throw new ArithmeticException("Division by zero.");
+                    }
+                    break;
+                case "%":
+                    result = leftOperand % rightOperand;
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected operator: " + term);
             }
+
+            // Replace the operands and operator with the result
+            termList.set(i - 1, String.valueOf(result));
+            termList.remove(i); // Remove the operator
+            termList.remove(i); // Remove the right operand
+            i--; // Adjust index after removal
         }
     }
+
+    // Handle '+' and '-'
+    double result = parseOperand(termList.get(0));
+    for (int i = 1; i < termList.size(); i += 2) {
+        String operator = termList.get(i);
+        double operand = parseOperand(termList.get(i + 1));
+
+        if (operator.equals("+")) {
+            result += operand;
+        } else if (operator.equals("-")) {
+            result -= operand;
+        }
+    }
+
+    return result;
+}
+
+private double extractLeftOperand(String expression, int start) {
+    int i = start;
+    while (i >= 0 && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.' || expression.charAt(i) == '-')) {
+        i--;
+    }
+    return parseOperand(expression.substring(i + 1, start + 1));
+}
+
+private double extractRightOperand(String expression, int start) {
+    int i = start;
+    while (i < expression.length() && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) {
+        i++;
+    }
+    return parseOperand(expression.substring(start, i));
+}
+
+private String replaceSubExpression(String expression, int opIndex, String operator, double result) {
+    int leftStart = opIndex - 1;
+    while (leftStart >= 0 && (Character.isDigit(expression.charAt(leftStart)) || expression.charAt(leftStart) == '.' || expression.charAt(leftStart) == '-')) {
+        leftStart--;
+    }
+
+    int rightEnd = opIndex + operator.length();
+    while (rightEnd < expression.length() && (Character.isDigit(expression.charAt(rightEnd)) || expression.charAt(rightEnd) == '.')) {
+        rightEnd++;
+    }
+
+    String subExpression = expression.substring(leftStart + 1, rightEnd);
+    return expression.replace(subExpression, String.valueOf(result));
+}
+
+private double parseOperand(String term) {
+    if (variables.containsKey(term)) {
+        return variables.get(term).doubleValue();
+    } else {
+        try {
+            return Double.parseDouble(term);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid number format: " + term);
+        }
+    }
+}
+
 
 private void handlePrint(String line) {
     String expr;
@@ -348,10 +395,9 @@ private void handlePrint(String line) {
         expr = line.substring(line.indexOf(' ') + 1).trim();
     }
 
-    // Check if the expression is a string literal
     if (expr.startsWith("\"") && expr.endsWith("\"")) {
         System.out.println(expr.substring(1, expr.length() - 1));
-    } else if (expr.equals("true") || expr.equals("false")) { // Check for boolean literals
+    } else if (expr.equals("true") || expr.equals("false")) {
         System.out.println(expr);
     } else if (boolvar.containsKey(expr)) { // Check if it's a boolean variable
         Boolean varValue = boolvar.get(expr);
@@ -383,10 +429,8 @@ private void handlePrint(String line) {
     public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
         String prog = """
-                     a = true
-                   
-                     a = 5
-                     puts a
+                i = 2 + 3 * 4 ** 2 - 5 / 5
+                puts i 
           """;
         interpreter.eval(prog);
     }
