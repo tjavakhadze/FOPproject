@@ -1,6 +1,6 @@
-//test 2
 import java.util.HashMap;
 import java.util.Map;
+//test4
 
 public class MinimalInterpreter {
     private final Map<String, Number> variables = new HashMap<>(); // stores numeric variables
@@ -95,6 +95,14 @@ public class MinimalInterpreter {
     }
 
     private boolean evaluateCondition(String condition) {
+         if (condition.contains("&&")) {
+            String[] parts = condition.split("&&");
+            return evaluateCondition(parts[0].trim()) && evaluateCondition(parts[1].trim());
+        }
+        if (condition.contains("||")) {
+            String[] parts = condition.split("\\|\\|");
+            return evaluateCondition(parts[0].trim()) || evaluateCondition(parts[1].trim());
+        }
 
         if (condition.contains("==")) { // handles equality checks
             String[] parts = condition.split("==");
@@ -253,60 +261,64 @@ public class MinimalInterpreter {
         }
     }
 
-    private void handlePrint(String line) {
-        String varName;
+private void handlePrint(String line) {
+    String expr;
 
-        if (line.contains("(") && line.contains(")")) { // extracts variable from parentheses
-            varName = line.substring(line.indexOf('(') + 1, line.indexOf(')')).trim();
-            if (varName.isEmpty()) {
-                System.out.println(); // prints empty line for 'puts'
-                return;
-            }
-        } else {
-            varName = line.substring(line.indexOf(' ') + 1).trim(); // extracts variable after space
+    // Check if the print statement contains parentheses with an expression
+    if (line.contains("(") && line.contains(")")) {
+        expr = line.substring(line.indexOf('(') + 1, line.indexOf(')')).trim();
+        if (expr.isEmpty()) {
+            System.out.println();
+            return;
         }
+    } else {
+        expr = line.substring(line.indexOf(' ') + 1).trim(); // Extract expression after 'puts' or 'print'
+    }
 
-        if (variables.containsKey(varName)) { // prints numeric variables
-            Number value = variables.get(varName);
-            if (value instanceof Double && value.doubleValue() == value.intValue()) {
-                System.out.println(value.intValue()); // avoids decimal point if unnecessary
+    // Check if the expression is a string literal (enclosed in quotes)
+    if (expr.startsWith("\"") && expr.endsWith("\"")) {
+        System.out.println(expr.substring(1, expr.length() - 1)); // Print the string without quotes
+    } else if (expr.equals("true") || expr.equals("false")) { // Check for boolean literals
+        System.out.println(expr); // Print the boolean value (true/false)
+    } else if (boolvar.containsKey(expr)) { // Check if it's a boolean variable
+        Boolean varValue = boolvar.get(expr);
+        System.out.println(varValue); // Print the boolean value (true/false)
+    } else if (variables.containsKey(expr)) { // Check if it's a numeric variable
+        Number varValue = variables.get(expr);
+        if (varValue != null) {
+            // Print numeric value of the variable
+            if (varValue.doubleValue() == (int) varValue.doubleValue()) {
+                System.out.println((int) varValue.doubleValue());
             } else {
-                System.out.println(value);
+                System.out.println(varValue);
             }
-        } else if (boolvar.containsKey(varName)) { // prints boolean variables
-            System.out.println(boolvar.get(varName));
-        } else if (stringvar.containsKey(varName)) { // prints string variables
-            System.out.println(stringvar.get(varName));
-        } else if ("true".equals(varName)) { // prints literal 'true'
-            System.out.println(true);
-        } else if ("false".equals(varName)) { // prints literal 'false'
-            System.out.println(false);
-        } else if (varName.startsWith("\"") && varName.endsWith("\"")) { // prints string literals
-            System.out.println(varName.substring(1, varName.length() - 1));
+        }
+    } else if (stringvar.containsKey(expr)) { // Check if it's a string variable
+        System.out.println(stringvar.get(expr)); // Print the string variable
+    } else {
+        // Evaluate the expression as a numeric one if it's not a string or boolean
+        double result = evaluateExpression(expr).doubleValue();
+        // Print the result of the evaluated expression
+        if (result == (int) result) { // If result is an integer value, print as integer
+            System.out.println((int) result);
         } else {
-            try {
-                double number = Double.parseDouble(varName); // parses and prints numeric literals
-                if (number == (int) number) {
-                    System.out.println((int) number);
-                } else {
-                    System.out.println(number);
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Undefined variable: " + varName); // error for unknown variables
-            }
+            System.out.println(result); // Print as double if not integer
         }
     }
+}
+
 
     public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
         String prog = """
-              t = 3
-            if t > 2
-              puts "yes"
-            else
-              puts "no"
-            end
-                """;
+          n = "sum"
+          puts n
+          k = 5
+          print k
+          e = false
+          puts (e)
+          print 6*2
+          """;
         interpreter.eval(prog); // executes the sample program
     }
 }
