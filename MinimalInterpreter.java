@@ -1,6 +1,5 @@
 import java.util.HashMap;
 import java.util.Map;
-//test4
 
 public class MinimalInterpreter {
     private final Map<String, Number> variables = new HashMap<>(); // stores numeric variables
@@ -122,7 +121,61 @@ public class MinimalInterpreter {
                     return false;
                 }
             }
-        } else if (condition.contains("<")) { // handles less-than conditions
+        }if (condition.contains("!=")) { // handles equality checks
+            String[] parts = condition.split("!=");
+            String varName = parts[0].trim(); // extract variable name
+            String expectedValue = parts[1].trim(); // extract expected value
+
+            if (boolvar.containsKey(varName)) { // checks if variable is boolean
+                Boolean varValue = boolvar.get(varName);
+                return varValue.toString().equals(expectedValue); // compares with expected
+            } else if (variables.containsKey(varName)) { // checks if variable is numeric
+                Number varValue = variables.get(varName);
+                try {
+                    double expected = Double.parseDouble(expectedValue);
+                    return varValue.doubleValue() != expected; // compares values
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + expectedValue);
+                    return false;
+                }
+            }
+        } else if (condition.contains("<=")){
+            String[] parts = condition.split("<=");
+            String varName = parts[0].trim();
+             String expectedValue = parts[1].trim(); // extract expected value
+
+            if (boolvar.containsKey(varName)) { // checks if variable is boolean
+                Boolean varValue = boolvar.get(varName);
+                return varValue.toString().equals(expectedValue); // compares with expected
+            } else if (variables.containsKey(varName)) { // checks if variable is numeric
+                Number varValue = variables.get(varName);
+                try {
+                    double expected = Double.parseDouble(expectedValue);
+                    return (varValue.doubleValue() == expected) ||(varValue.doubleValue() < expected) ; // compares values
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + expectedValue);
+                    return false;
+                }
+            }
+        }else if (condition.contains(">=")){
+            String[] parts = condition.split(">=");
+            String varName = parts[0].trim();
+             String expectedValue = parts[1].trim(); // extract expected value
+
+            if (boolvar.containsKey(varName)) { // checks if variable is boolean
+                Boolean varValue = boolvar.get(varName);
+                return varValue.toString().equals(expectedValue); // compares with expected
+            } else if (variables.containsKey(varName)) { // checks if variable is numeric
+                Number varValue = variables.get(varName);
+                try {
+                    double expected = Double.parseDouble(expectedValue);
+                    return (varValue.doubleValue() == expected) ||(varValue.doubleValue() > expected) ; // compares values
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + expectedValue);
+                    return false;
+                }
+            }
+        }else if (condition.contains("<")) { // handles less-than conditions
             String[] parts = condition.split("<");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
@@ -311,14 +364,9 @@ private void handlePrint(String line) {
     public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
         String prog = """
-          n = "sum"
-          puts n
-          k = 5
-          print k
-          e = false
-          puts (e)
-          print 6*2
+       
           """;
         interpreter.eval(prog); // executes the sample program
     }
+
 }
