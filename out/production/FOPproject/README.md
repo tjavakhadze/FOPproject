@@ -116,5 +116,23 @@ puts reversed
 
 """;
 
+-PALINDROME-
+
+String prog = """
+ n = 123321
+ original = n
+  reversed = 0
+  while n > 0
+    reversed = reversed * 10 + n % 10
+    n = n / 10
+  end
+  
+  if original == reversed 
+   puts "true"
+  else
+   puts "false"
+  end
+"""
+
 
     

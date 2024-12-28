@@ -7,13 +7,14 @@ public class MinimalInterpreter {
     private final Map<String, String> stringvar = new HashMap<>();
 
     public void eval(String code) {
-        String[] lines = code.split("\n");
-        boolean insideIf = false;
-        boolean ifCondition = false;
-        boolean insideWhile = false;
-        StringBuilder block = new StringBuilder();
-        int whileStartIndex = -1;
+    String[] lines = code.split("\n");
+    boolean insideIf = false;
+    boolean ifCondition = false;
+    boolean insideWhile = false;
+    StringBuilder block = new StringBuilder();
+    int whileStartIndex = -1;
 
+    try {
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
             if (line.isEmpty()) continue;
@@ -43,7 +44,7 @@ public class MinimalInterpreter {
                     }
                 }
 
-                while (i < lines.length && !lines[i].trim().equals("end")&&(!insideIf)) {
+                while (i < lines.length && !lines[i].trim().equals("end") && (!insideIf)) {
                     i++;
                 }
                 insideWhile = false;
@@ -65,6 +66,7 @@ public class MinimalInterpreter {
                 }
                 block.append(line).append("\n"); // add line to the 'while' block
             }
+
             if (insideIf) {
                 if (line.startsWith("else")) { // entering 'else' block
                     if (ifCondition) {
@@ -82,15 +84,23 @@ public class MinimalInterpreter {
                 }
                 block.append(line).append("\n"); // add line to 'if' or 'else' block
             } else {
-                if (line.contains("=")&&!line.contains("<=")&&!line.contains(">=")&&!line.contains("==")&&!line.contains("!=")) {
+                if (line.contains("=") && !line.contains("<=") && !line.contains(">=") && !line.contains("==") && !line.contains("!=")) {
                     handleAssignment(line); // handle variable assignment
                 }
                 else if (line.startsWith("puts") || line.startsWith("print")) {
                     handlePrint(line); // handle print statements
+                } else {
+                    // Throwing the exception for illegal argument
+                    throw new IllegalArgumentException("Illegal argument or unstated operation in line: " + line);
                 }
             }
         }
+    } catch (IllegalArgumentException e) {
+        // Handling the illegal argument exception
+        System.err.println("Error: " + e.getMessage());
     }
+}
+
     private void evalBlock(String block) {
         String[] lines = block.split("\n");
         for (String line : lines) {
@@ -315,7 +325,7 @@ public class MinimalInterpreter {
             return;
         }
         String varName = parts[0].trim();
-        String expression = parts[1].trim();
+        String expression = parts[parts.length-1].trim();
         if (expression.startsWith("\"") && expression.endsWith("\"")) { // handles string assignments
             if(variables.containsKey(varName)||boolvar.containsKey(varName)){
                 variables.remove(varName);
@@ -517,8 +527,20 @@ public class MinimalInterpreter {
     public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
         String prog = """
-            puts 5+1 >= 7
-    
+           
+ 
+n = 10
+fib = 0
+fiba = 1
+count = 0 
+
+while count < n
+  fib = fiba + fib 
+  fiba = fib - fiba 
+  count = count + 1  
+end
+
+puts fiba
          """;
         interpreter.eval(prog);
     }
