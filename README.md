@@ -25,7 +25,7 @@ Here are some of the things my code can do:
 
 Algorithm tests:
 
-Sum of first n numbersGCD
+-SUM OF FIRST N NUMS-
 
   String prog = """
           n = 5
@@ -37,7 +37,7 @@ Sum of first n numbersGCD
          puts sum
           """;
 
-Factorial of n
+-FACTORIAL OF N-
 
 String prog = """
           n = 5
@@ -49,7 +49,7 @@ String prog = """
          puts fac
          """;
 
-GCD
+-GCD-
 
  String prog = """ 
            a = 48
@@ -63,7 +63,7 @@ GCD
           puts a
           """;
           
-Sum of digits
+-SUM OF DIGITS-
 
 String prog = """
 n=45
@@ -76,7 +76,7 @@ sum = 0
 end
 """;
 
-Multiplication table
+-MULTIPLICATION TABLE-
 
  String prog = """
           n = 5
@@ -87,21 +87,32 @@ Multiplication table
          end
           """;
 
-n-th fib num
+-N-TH FIB NUM-
 
 String prog = """
 n = 10
 fib = 0
 fiba = 1
 count = 0 
-
 while count < n
   fib = fiba + fib 
   fiba = fib - fiba 
   count = count + 1  
 end
-
 puts fiba
+
+-REVERSE NUM-
+
+String prog = """
+number = 1234
+digit = 0
+reversed = 0
+while number != 0
+  digit = number % 10 
+  reversed = reversed * 10 + digit 
+  number = number/10
+end
+puts reversed
 
 """;
 
