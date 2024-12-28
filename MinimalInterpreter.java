@@ -26,30 +26,30 @@ public class MinimalInterpreter {
             }
 
             if (line.startsWith("while")) {
-             insideWhile = true;
-    whileStartIndex = i;
-    String condition = line.substring(5).trim();
+                insideWhile = true;
+                whileStartIndex = i;
+                String condition = line.substring(5).trim();
 
-    while (evaluateCondition(condition)) {
-        evalBlock(block.toString());
-        block.setLength(0);
+                while (evaluateCondition(condition)) {
+                    evalBlock(block.toString());
+                    block.setLength(0);
 
-        for (int j = whileStartIndex + 1; j < lines.length; j++) {
-            String loopLine = lines[j].trim();
-            if (loopLine.startsWith("end")) {
-                break;
+                    for (int j = whileStartIndex + 1; j < lines.length; j++) {
+                        String loopLine = lines[j].trim();
+                        if (loopLine.startsWith("end")) {
+                            break;
+                        }
+                        block.append(loopLine).append("\n");
+                    }
+                }
+
+                while (i < lines.length && !lines[i].trim().equals("end")&&(!insideIf)) {
+                    i++;
+                }
+                insideWhile = false;
+                block.setLength(0);
+                continue;
             }
-            block.append(loopLine).append("\n");
-        }
-    }
-
-    while (i < lines.length && !lines[i].trim().equals("end")) {
-        i++;
-    }
-    insideWhile = false;
-    block.setLength(0);
-    continue;
-}
 
             if (insideWhile) {
                 if (line.startsWith("end")) {
@@ -82,7 +82,7 @@ public class MinimalInterpreter {
                 }
                 block.append(line).append("\n"); // add line to 'if' or 'else' block
             } else {
-                if (line.contains("=")) {
+                if (line.contains("=")&&!line.contains("<=")&&!line.contains(">=")&&!line.contains("==")&&!line.contains("!=")) {
                     handleAssignment(line); // handle variable assignment
                 }
                 else if (line.startsWith("puts") || line.startsWith("print")) {
@@ -105,7 +105,7 @@ public class MinimalInterpreter {
         }
     }
     private boolean evaluateCondition(String condition) {
-         if (condition.contains("&&")) {
+        if (condition.contains("&&")) {
             String[] parts = condition.split("&&");
             return evaluateCondition(parts[0].trim()) && evaluateCondition(parts[1].trim());
         }
@@ -133,8 +133,8 @@ public class MinimalInterpreter {
                 Integer right = variables.get(expectedValue);
                 return Objects.equals(varValue, right);
             } else if (variables.containsKey(varName)){
-                 Integer varValue = variables.get(varName);
-                 try {
+                Integer varValue = variables.get(varName);
+                try {
                     return varValue == Integer.parseInt(expectedValue);
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid number format: " + expectedValue);
@@ -142,23 +142,23 @@ public class MinimalInterpreter {
                 }
             }else if (variables.containsKey(expectedValue)){
                 Integer right = variables.get(expectedValue);
-                 try {
+                try {
                     return right == Integer.parseInt(varName);
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid number format: " + varName);
                     return false;
                 }
             }
-                else if (stringvar.containsKey(varName)&&stringvar.containsKey(expectedValue)) {
+            else if (stringvar.containsKey(varName)&&stringvar.containsKey(expectedValue)) {
                 String varValue = stringvar.get(varName);
                 String right = stringvar.get(expectedValue);
                 return varValue.equals(right);
             } else if(stringvar.containsKey(varName)){
-                    String varValue = stringvar.get(varName);
-                    return varValue.equals(expectedValue);
+                String varValue = stringvar.get(varName);
+                return varValue.equals(expectedValue);
             }else if(stringvar.containsKey(expectedValue)){
-                    String right = stringvar.get(expectedValue);
-                    return right.equals(varName);
+                String right = stringvar.get(expectedValue);
+                return right.equals(varName);
             }
         }if (condition.contains("!=")) {
             String[] parts = condition.split("!=");
@@ -175,12 +175,12 @@ public class MinimalInterpreter {
                 Boolean right = boolvar.get(expectedValue);
                 return !(right.toString().equals(varName));
             } else if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                 Integer varValue = variables.get(varName);
-                 Integer right = variables.get(expectedValue);
-                 return (!Objects.equals(varValue, right));
+                Integer varValue = variables.get(varName);
+                Integer right = variables.get(expectedValue);
+                return (!Objects.equals(varValue, right));
             } else if(variables.containsKey(expectedValue)){
-                 Integer right = variables.get(expectedValue);
-                 try {
+                Integer right = variables.get(expectedValue);
+                try {
                     return right != Integer.parseInt(varName);
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid number format: " + varName);
@@ -199,12 +199,12 @@ public class MinimalInterpreter {
         } else if (condition.contains("<=")){
             String[] parts = condition.split("<=");
             String varName = parts[0].trim();
-             String expectedValue = parts[1].trim();
-             if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                 Integer varValue = variables.get(varName);
-                 Integer right = variables.get(expectedValue);
-                 return (Objects.equals(varValue, right)) ||(varValue < right) ;
-             } else if (variables.containsKey(varName)) {
+            String expectedValue = parts[1].trim();
+            if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
+                Integer varValue = variables.get(varName);
+                Integer right = variables.get(expectedValue);
+                return (Objects.equals(varValue, right)) ||(varValue < right) ;
+            } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
                     int expected = Integer.parseInt(expectedValue);
@@ -214,23 +214,23 @@ public class MinimalInterpreter {
                     return false;
                 }
             } else if (variables.containsKey(expectedValue)){
-                 Integer right = variables.get(expectedValue);
-                 try {
+                Integer right = variables.get(expectedValue);
+                try {
                     return (Integer.parseInt(varName)==right ) ||(Integer.parseInt(varName) < right) ;
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid number format: " + expectedValue);
                     return false;
                 }
-             }
+            }
         }else if (condition.contains(">=")){
             String[] parts = condition.split(">=");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
-               if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                 Integer varValue = variables.get(varName);
-                 Integer right = variables.get(expectedValue);
-                 return (Objects.equals(varValue, right)) ||(varValue > right) ;
-             } else if (variables.containsKey(varName)) {
+            if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
+                Integer varValue = variables.get(varName);
+                Integer right = variables.get(expectedValue);
+                return (Objects.equals(varValue, right)) ||(varValue > right) ;
+            } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
                     int expected = Integer.parseInt(expectedValue);
@@ -240,8 +240,8 @@ public class MinimalInterpreter {
                     return false;
                 }
             } else if (variables.containsKey(expectedValue)){
-                 Integer right = variables.get(expectedValue);
-                 try {
+                Integer right = variables.get(expectedValue);
+                try {
                     return (Integer.parseInt(varName)==right ) ||(Integer.parseInt(varName) > right) ;
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid number format: " + varName);
@@ -254,10 +254,10 @@ public class MinimalInterpreter {
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
             if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                 Integer varValue = variables.get(varName);
-                 Integer right = variables.get(expectedValue);
-                 return varValue < right ;
-             } else if (variables.containsKey(varName)) {
+                Integer varValue = variables.get(varName);
+                Integer right = variables.get(expectedValue);
+                return varValue < right ;
+            } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
                     int expected = Integer.parseInt(expectedValue);
@@ -267,23 +267,23 @@ public class MinimalInterpreter {
                     return false;
                 }
             } else if (variables.containsKey(expectedValue)){
-                 Integer right = variables.get(expectedValue);
-                 try {
+                Integer right = variables.get(expectedValue);
+                try {
                     return Integer.parseInt(varName) < right ;
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid number format: " + varName);
                     return false;
                 }
-             }
+            }
         } else if (condition.contains(">")) {
-        String[] parts = condition.split(">");
-        String varName = parts[0].trim();
-        String expectedValue = parts[1].trim();
-        if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                 Integer varValue = variables.get(varName);
-                 Integer right = variables.get(expectedValue);
-                 return varValue > right;
-             } else if (variables.containsKey(varName)) {
+            String[] parts = condition.split(">");
+            String varName = parts[0].trim();
+            String expectedValue = parts[1].trim();
+            if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
+                Integer varValue = variables.get(varName);
+                Integer right = variables.get(expectedValue);
+                return varValue > right;
+            } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
                     int expected = Integer.parseInt(expectedValue);
@@ -293,15 +293,15 @@ public class MinimalInterpreter {
                     return false;
                 }
             } else if (variables.containsKey(expectedValue)){
-                 Integer right = variables.get(expectedValue);
-                 try {
+                Integer right = variables.get(expectedValue);
+                try {
                     return Integer.parseInt(varName) > right;
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid number format: " + expectedValue);
                     return false;
                 }
-             }
-    } else if (condition.equals("true")) {
+            }
+        } else if (condition.equals("true")) {
             return true;
         } else if (condition.equals("false")) {
             return false;
@@ -310,7 +310,7 @@ public class MinimalInterpreter {
     }
     private void handleAssignment(String line) {
         String[] parts = line.split("=");
-        if (parts.length != 2) {
+        if (parts.length < 2) {
             System.out.println("Invalid assignment syntax: " + line);
             return;
         }
@@ -324,18 +324,18 @@ public class MinimalInterpreter {
             String value = expression.substring(1, expression.length() - 1);
             stringvar.put(varName, value);
         } else if (expression.equals("false") || expression.equals("true")) { // handles boolean assignments
-             if(variables.containsKey(varName)||stringvar.containsKey(varName)){
+            if(variables.containsKey(varName)||stringvar.containsKey(varName)){
                 variables.remove(varName);
                 stringvar.remove(varName);
             }
             Boolean value = evaluateBool(expression);
             boolvar.put(varName, value);
         } else {
-             if(stringvar.containsKey(varName)||boolvar.containsKey(varName)){
+            if(stringvar.containsKey(varName)||boolvar.containsKey(varName)){
                 stringvar.remove(varName);
                 boolvar.remove(varName);
             }
-            Integer value = evaluateSimpleExpression(expression);
+            Integer value = (Integer) evaluateSimpleExpression(expression);
             variables.put(varName, value);
         }
     }
@@ -344,158 +344,182 @@ public class MinimalInterpreter {
         return expression.equals("true");
     }
 
-  private int evaluateSimpleExpression(String expression) {
-      expression = expression.replaceAll("\\s", ""); // Remove spaces
-    while (expression.contains("**")) {
-        int opIndex = expression.indexOf("**");
-        int leftOperand = extractLeftOperand(expression, opIndex - 1);
-        int rightOperand = extractRightOperand(expression, opIndex + 2);
-        int result = (int) Math.pow(leftOperand, rightOperand);
-        expression = replaceSubExpression(expression, opIndex, "**", result);
+    private Object evaluateSimpleExpression(String expression) {
+        if (expression == null || expression.trim().isEmpty()) {
+            throw new IllegalArgumentException("Expression cannot be empty or null.");
+        }
+
+        expression = expression.replaceAll("\\s", "");
+        expression = expression.replaceAll("\\s", ""); // Remove spaces
+
+        // Check if there's a comparison operator, if so, split based on the first operator found
+        String operator = null;
+        String leftPart = null;
+        String rightPart = null;
+
+        // Determine the operator and split the expression
+        if (expression.contains("==")) {
+            operator = "==";
+            String[] parts = expression.split("==", 2);
+            leftPart = parts[0].trim();
+            rightPart = parts[1].trim();
+        } else if (expression.contains("!=")) {
+            operator = "!=";
+            String[] parts = expression.split("!=", 2);
+            leftPart = parts[0].trim();
+            rightPart = parts[1].trim();
+        } else if (expression.contains("<=")) {
+            operator = "<=";
+            String[] parts = expression.split("<=", 2);
+            leftPart = parts[0].trim();
+            rightPart = parts[1].trim();
+        } else if (expression.contains(">=")) {
+            operator = ">=";
+            String[] parts = expression.split(">=", 2);
+            leftPart = parts[0].trim();
+            rightPart = parts[1].trim();
+        } else if (expression.contains("<")) {
+            operator = "<";
+            String[] parts = expression.split("<", 2);
+            leftPart = parts[0].trim();
+            rightPart = parts[1].trim();
+        } else if (expression.contains(">")) {
+            operator = ">";
+            String[] parts = expression.split(">", 2);
+            leftPart = parts[0].trim();
+            rightPart = parts[1].trim();
+        }
+
+        // If no comparison operator found, treat the whole expression as a math expression
+        if (operator == null) {
+            leftPart = expression;
+            rightPart = null;
+        }
+
+        // First, evaluate the mathematical expressions in both parts
+        int leftResult = evaluateMath(leftPart);
+        int rightResult = (rightPart != null) ? evaluateMath(rightPart) : 0; // Right part may be null for non-comparison cases
+
+        // If there is no comparison operator, return the result of the mathematical evaluation
+        if (operator == null) {
+            return leftResult;
+        }
+        // Now compare the results based on the operator
+        return switch (operator) {
+            case "==" -> leftResult == rightResult;
+            case "!=" -> leftResult != rightResult;
+            case ">=" -> leftResult >= rightResult;
+            case "<=" -> leftResult <= rightResult;
+            case "<" -> leftResult < rightResult;
+            case ">" -> leftResult > rightResult;
+            default -> throw new IllegalArgumentException("Unknown comparison operator: " + operator);
+        };
     }
 
-    String[] terms = expression.split("(?=[-+*/%])|(?<=[-+*/%])");
-    List<String> termList = new ArrayList<>(Arrays.asList(terms));
+    private int evaluateMath(String part) {
+        // Split the mathematical expression into terms
+        String[] terms = part.split("(?=[-+*/%])|(?<=[-+*/%])");
+        List<String> termList = new ArrayList<>(Arrays.asList(terms));
 
-    // Handle '*' '/' '%'
-    for (int i = 0; i < termList.size(); i++) {
-        String term = termList.get(i);
-        if ("*/%".contains(term)) {
-            int leftOperand = parseOperand(termList.get(i - 1));
-            int rightOperand = parseOperand(termList.get(i + 1));
-            int result;
+        // Handle '*' '/' '%'
+        for (int i = 0; i < termList.size(); i++) {
+            String term = termList.get(i);
+            if ("*/%".contains(term)) {
+                int leftOperand = parseOperand(termList.get(i - 1));
+                int rightOperand = parseOperand(termList.get(i + 1));
+                int result;
 
-            switch (term) {
-                case "*":
-                    result = leftOperand * rightOperand;
-                    break;
-                case "/":
-                    if (rightOperand != 0) {
-                        result = leftOperand / rightOperand;
-
-                    } else {
-                        throw new ArithmeticException("Division by zero.");
+                switch (term) {
+                    case "*" -> result = leftOperand * rightOperand;
+                    case "/" -> {
+                        if (rightOperand != 0) {
+                            result = leftOperand / rightOperand;
+                        } else {
+                            throw new ArithmeticException("Division by zero.");
+                        }
                     }
-                    break;
-                case "%":
-                    result = leftOperand % rightOperand;
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected operator: " + term);
+                    case "%" -> result = leftOperand % rightOperand;
+                    default -> throw new IllegalStateException("Unexpected operator: " + term);
+                }
+
+                // Replace the operands and operator with the result
+                termList.set(i - 1, String.valueOf(result));
+                termList.remove(i); // Remove the operator
+                termList.remove(i); // Remove the right operand
+                i--; // Adjust index after removal
             }
+        }
 
-            // Replace the operands and operator with the result
-            termList.set(i - 1, String.valueOf(result));
-            termList.remove(i); // Remove the operator
-            termList.remove(i); // Remove the right operand
-            i--; // Adjust index after removal
+        // Handle '+' and '-'
+        int result = parseOperand(termList.get(0));
+        for (int i = 1; i < termList.size(); i += 2) {
+            String operator = termList.get(i);
+            int operand = parseOperand(termList.get(i + 1));
+
+            if (operator.equals("+")) {
+                result += operand;
+            } else if (operator.equals("-")) {
+                result -= operand;
+            }
+        }
+
+        return result;
+    }
+
+    private int parseOperand(String term) {
+        if (variables.containsKey(term)) {
+            return variables.get(term);
+        } else {
+            try {
+                return Integer.parseInt(term);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid number format: " + term);
+            }
         }
     }
 
-    // Handle '+' and '-'
-    int result = parseOperand(termList.get(0));
-    for (int i = 1; i < termList.size(); i += 2) {
-        String operator = termList.get(i);
-        int operand = parseOperand(termList.get(i + 1));
 
-        if (operator.equals("+")) {
-            result += operand;
-        } else if (operator.equals("-")) {
-            result -= operand;
+    private void handlePrint(String line) {
+        String expr;
+
+
+        if (line.contains("(") && line.contains(")")) {
+            expr = line.substring(line.indexOf('(') + 1, line.indexOf(')')).trim();
+            if (expr.isEmpty()) {
+                System.out.println();
+                return;
+            }
+        } else {
+            expr = line.substring(line.indexOf(' ') + 1).trim();
+        }
+
+        if (expr.startsWith("\"") && expr.endsWith("\"")) {
+            System.out.println(expr.substring(1, expr.length() - 1));
+        }else if (expr.equals("true") || expr.equals("false")) {
+            System.out.println(expr);
+        } else if (boolvar.containsKey(expr)) { // Check if it's a boolean variable
+            Boolean varValue = boolvar.get(expr);
+            System.out.println(varValue);
+        } else if (variables.containsKey(expr)) { // Check if it's a numeric variable
+            Integer varValue = variables.get(expr);
+            if (varValue != null) {
+                System.out.println(varValue);
+
+            }
+        } else if (stringvar.containsKey(expr)) { // Check if it's a string variable
+            System.out.println(stringvar.get(expr));
+        } else {
+            // Evaluate the expression as a numeric one if it's not a string or boolean
+            Object result = evaluateSimpleExpression(expr);
+            System.out.println(result);
         }
     }
-
-    return result;
-}
-
-private int extractLeftOperand(String expression, int start) {
-    int i = start;
-    while (i >= 0 && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.' || expression.charAt(i) == '-')) {
-        i--;
-    }
-    return parseOperand(expression.substring(i + 1, start + 1));
-}
-
-private int extractRightOperand(String expression, int start) {
-    int i = start;
-    while (i < expression.length() && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) {
-        i++;
-    }
-    return parseOperand(expression.substring(start, i));
-}
-
-private String replaceSubExpression(String expression, int opIndex, String operator, int result) {
-    int leftStart = opIndex - 1;
-    while (leftStart >= 0 && (Character.isDigit(expression.charAt(leftStart)) || expression.charAt(leftStart) == '.' || expression.charAt(leftStart) == '-')) {
-        leftStart--;
-    }
-
-    int rightEnd = opIndex + operator.length();
-    while (rightEnd < expression.length() && (Character.isDigit(expression.charAt(rightEnd)) || expression.charAt(rightEnd) == '.')) {
-        rightEnd++;
-    }
-
-    String subExpression = expression.substring(leftStart + 1, rightEnd);
-    return expression.replace(subExpression, String.valueOf(result));
-}
-
-private int parseOperand(String term) {
-    if (variables.containsKey(term)) {
-        return variables.get(term);
-    } else {
-        try {
-            return Integer.parseInt(term);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid number format: " + term);
-        }
-    }
-}
-
-private void handlePrint(String line) {
-    String expr;
-
-
-    if (line.contains("(") && line.contains(")")) {
-        expr = line.substring(line.indexOf('(') + 1, line.indexOf(')')).trim();
-        if (expr.isEmpty()) {
-            System.out.println();
-            return;
-        }
-    } else {
-        expr = line.substring(line.indexOf(' ') + 1).trim();
-    }
-
-    if (expr.startsWith("\"") && expr.endsWith("\"")) {
-        System.out.println(expr.substring(1, expr.length() - 1));
-    } else if (expr.equals("true") || expr.equals("false")) {
-        System.out.println(expr);
-    } else if (boolvar.containsKey(expr)) { // Check if it's a boolean variable
-        Boolean varValue = boolvar.get(expr);
-        System.out.println(varValue);
-    } else if (variables.containsKey(expr)) { // Check if it's a numeric variable
-        Integer varValue = variables.get(expr);
-         if (varValue != null) {
-          System.out.println(varValue);
-
-        }
-    } else if (stringvar.containsKey(expr)) { // Check if it's a string variable
-        System.out.println(stringvar.get(expr));
-    } else {
-        // Evaluate the expression as a numeric one if it's not a string or boolean
-        int result = evaluateSimpleExpression(expr);
-
-
-            System.out.println(result); // Print as double if not integer
-
-    }
-}
-public static void main(String[] args) {
+    public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
         String prog = """
-
-
-    """;
+            puts 5+1 >= 7
+    
+         """;
         interpreter.eval(prog);
     }
-
 }
