@@ -1,5 +1,4 @@
 import java.util.*;
-
 public class MinimalInterpreter {
     private final Map<String, Integer> variables = new HashMap<>();
     private final Map<String, Boolean> boolvar = new HashMap<>();
@@ -25,19 +24,30 @@ public class MinimalInterpreter {
             }
 
             if (line.startsWith("while")) {
-                insideWhile = true;
-                whileStartIndex = i;
-                String condition = line.substring(5).trim();
-                if (evaluateCondition(condition)) {
-                    continue;
-                } else {
-                    while (i < lines.length && !lines[i].trim().equals("end")) {
-                        i++;
-                    }
-                    insideWhile = false;
-                    continue;
-                }
+             insideWhile = true;
+    whileStartIndex = i;
+    String condition = line.substring(5).trim();
+
+    while (evaluateCondition(condition)) {
+        evalBlock(block.toString());
+        block.setLength(0);
+
+        for (int j = whileStartIndex + 1; j < lines.length; j++) {
+            String loopLine = lines[j].trim();
+            if (loopLine.startsWith("end")) {
+                break;
             }
+            block.append(loopLine).append("\n");
+        }
+    }
+
+    while (i < lines.length && !lines[i].trim().equals("end")) {
+        i++;
+    }
+    insideWhile = false;
+    block.setLength(0);
+    continue;
+}
 
             if (insideWhile) {
                 if (line.startsWith("end")) {
@@ -76,7 +86,6 @@ public class MinimalInterpreter {
                 else if (line.startsWith("puts") || line.startsWith("print")) {
                     handlePrint(line); // handle print statements
                 }
-
             }
         }
     }
@@ -93,9 +102,7 @@ public class MinimalInterpreter {
             }
         }
     }
-
     private boolean evaluateCondition(String condition) {
-
          if (condition.contains("&&")) {
             String[] parts = condition.split("&&");
             return evaluateCondition(parts[0].trim()) && evaluateCondition(parts[1].trim());
@@ -104,12 +111,10 @@ public class MinimalInterpreter {
             String[] parts = condition.split("\\|\\|");
             return evaluateCondition(parts[0].trim()) || evaluateCondition(parts[1].trim());
         }
-
         if (condition.contains("==")) {
             String[] parts = condition.split("==");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
-
             if (boolvar.containsKey(varName)) {
                 Boolean varValue = boolvar.get(varName);
                 return varValue.toString().equals(expectedValue);
@@ -131,7 +136,6 @@ public class MinimalInterpreter {
             String[] parts = condition.split("!=");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
-
             if (boolvar.containsKey(varName)) {
                 Boolean varValue = boolvar.get(varName);
                 return varValue.toString().equals(expectedValue);
@@ -149,7 +153,6 @@ public class MinimalInterpreter {
             String[] parts = condition.split("<=");
             String varName = parts[0].trim();
              String expectedValue = parts[1].trim();
-
             if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
@@ -164,7 +167,6 @@ public class MinimalInterpreter {
             String[] parts = condition.split(">=");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
-
                 if (variables.containsKey(varName)) { // checks if variable is numeric
                 Integer varValue = variables.get(varName);
                 try {
@@ -179,7 +181,6 @@ public class MinimalInterpreter {
             String[] parts = condition.split("<");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
-
             if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
@@ -194,7 +195,6 @@ public class MinimalInterpreter {
         String[] parts = condition.split(">");
         String varName = parts[0].trim();
         String expectedValue = parts[1].trim();
-
         if (variables.containsKey(varName)) {
             Integer varValue = variables.get(varName);
             try {
@@ -211,20 +211,15 @@ public class MinimalInterpreter {
             return false;
         }
         return false;
-
     }
-
     private void handleAssignment(String line) {
         String[] parts = line.split("=");
-
         if (parts.length != 2) {
             System.out.println("Invalid assignment syntax: " + line);
             return;
         }
-
         String varName = parts[0].trim();
         String expression = parts[1].trim();
-
         if (expression.startsWith("\"") && expression.endsWith("\"")) { // handles string assignments
             if(variables.containsKey(varName)||boolvar.containsKey(varName)){
                 variables.remove(varName);
@@ -375,43 +370,6 @@ private int parseOperand(String term) {
     }
 }
 
-// Evaluate and handle different types for operands
-private int evaluateSimpleExpression(List<String> termList) {
-    int result = parseOperand(termList.get(0)); // Start with the first operand
-
-    for (int i = 1; i < termList.size(); i += 2) {
-        String operator = termList.get(i);
-        int operand = parseOperand(termList.get(i + 1));
-
-        // Perform the operation based on the operator
-        switch (operator) {
-            case "+":
-                result += operand;
-                break;
-            case "-":
-                result -= operand;
-                break;
-            case "*":
-                result *= operand;
-                break;
-            case "/":
-                if (operand != 0) {
-                    result /= operand;
-                } else {
-                    throw new ArithmeticException("Division by zero.");
-                }
-                break;
-            case "%":
-                result = result % operand;
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected operator: " + operator);
-        }
-    }
-
-    return result;
-}
-
 private void handlePrint(String line) {
     String expr;
 
@@ -446,15 +404,15 @@ private void handlePrint(String line) {
         int result = evaluateExpression(expr);
 
 
-            System.out.println(result); // Print as double if not integer
+            System.out.println(result);
 
     }
 }
-    public static void main(String[] args) {
+public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
         String prog = """
-                   
-          """;
+          
+""";
         interpreter.eval(prog);
     }
 
