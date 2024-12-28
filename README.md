@@ -10,13 +10,18 @@ String prog = """
 interpreter.eval(prog);
 
 Here are some of the things my code can do:
-    It can print thing with puts, print, puts(...) and print(...) 
-    It can store variables and overwrite them (x=3  puts x (output:3)  x="hi" puts x(output:hi) x=true ... )
-    It can perform arithmetic operations, both simple(4+2) and complicated (3+5*3**2)
-    It can understand > < = != >= <= == && || operations
-    It implements If else
-    It implements while loops
-    Basic error handling
+   * It can print thing with puts, print, puts(...) and print(...) 
+   * It can store variables and overwrite them (x=3  puts x (output:3)  x="hi" puts x(output:hi) x=true ... )
+   * It can perform arithmetic operations, both simple(4+2) and complicated (3+5*3**2)
+   * It can understand > < = != >= <= == && || operations
+   * It implements If else blocks
+       if x>5 || x==3
+            puts "nice"
+         else
+            puts 0
+         end
+   * It implements while loops
+   * Basic error handling
 
 Algorithm tests:
 
