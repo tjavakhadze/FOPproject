@@ -1,4 +1,7 @@
+import java.util.HashMap;
+import java.util.Map;
 import java.util.*;
+
 public class MinimalInterpreter {
     private final Map<String, Integer> variables = new HashMap<>();
     private final Map<String, Boolean> boolvar = new HashMap<>();
@@ -115,30 +118,75 @@ public class MinimalInterpreter {
             String[] parts = condition.split("==");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
-            if (boolvar.containsKey(varName)) {
+
+            if (boolvar.containsKey(varName)&&boolvar.containsKey(expectedValue)) {
+                Boolean varValue = boolvar.get(varName);
+                Boolean right = boolvar.get(expectedValue);
+                return varValue.toString().equals(right.toString());
+            }else if (boolvar.containsKey(varName)) {
                 Boolean varValue = boolvar.get(varName);
                 return varValue.toString().equals(expectedValue);
-            } else if (variables.containsKey(varName)) {
+            } else if (boolvar.containsKey(expectedValue)) {
+                Boolean right = boolvar.get(expectedValue);
+                return right.toString().equals((varName));
+            } else if (variables.containsKey(varName)&&variables.containsKey(expectedValue)) {
                 Integer varValue = variables.get(varName);
-                try {
-                    int expected = Integer.parseInt(expectedValue);
-                    return varValue == expected;
+                Integer right = variables.get(expectedValue);
+                return varValue == right;
+            } else if (variables.containsKey(varName)){
+                 Integer varValue = variables.get(varName);
+                 try {
+                    return varValue == Integer.parseInt(expectedValue);
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid number format: " + expectedValue);
                     return false;
                 }
+            }else if (variables.containsKey(expectedValue)){
+                Integer right = variables.get(expectedValue);
+                 try {
+                    return right == Integer.parseInt(varName);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + varName);
+                    return false;
+                }
             }
-                else if (stringvar.containsKey(varName)) {
+                else if (stringvar.containsKey(varName)&&stringvar.containsKey(expectedValue)) {
                 String varValue = stringvar.get(varName);
-                return varValue.equals(expectedValue);
+                String right = stringvar.get(expectedValue);
+                return varValue.equals(right);
+            } else if(stringvar.containsKey(varName)){
+                    String varValue = stringvar.get(varName);
+                    return varValue.equals(expectedValue);
+            }else if(stringvar.containsKey(expectedValue)){
+                    String right = stringvar.get(expectedValue);
+                    return right.equals(varName);
             }
         }if (condition.contains("!=")) {
             String[] parts = condition.split("!=");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
-            if (boolvar.containsKey(varName)) {
+            if (boolvar.containsKey(varName)&&boolvar.containsKey(expectedValue)) {
                 Boolean varValue = boolvar.get(varName);
-                return varValue.toString().equals(expectedValue);
+                Boolean right = boolvar.get(expectedValue);
+                return !(varValue.toString().equals(right.toString()));
+            }else if (boolvar.containsKey(varName)) {
+                Boolean varValue = boolvar.get(varName);
+                return !(varValue.toString().equals(expectedValue));
+            } else if (boolvar.containsKey(expectedValue)) {
+                Boolean right = boolvar.get(expectedValue);
+                return !(right.toString().equals(varName));
+            } else if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
+                 Integer varValue = variables.get(varName);
+                 Integer right = variables.get(expectedValue);
+                 return (varValue!=right);
+            } else if(variables.containsKey(expectedValue)){
+                 Integer right = variables.get(expectedValue);
+                 try {
+                    return right != Integer.parseInt(varName);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + varName);
+                    return false;
+                }
             } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
@@ -153,7 +201,11 @@ public class MinimalInterpreter {
             String[] parts = condition.split("<=");
             String varName = parts[0].trim();
              String expectedValue = parts[1].trim();
-            if (variables.containsKey(varName)) {
+             if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
+                 Integer varValue = variables.get(varName);
+                 Integer right = variables.get(expectedValue);
+                 return (varValue == right) ||(varValue < right) ;
+             } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
                     int expected = Integer.parseInt(expectedValue);
@@ -162,12 +214,24 @@ public class MinimalInterpreter {
                     System.out.println("Invalid number format: " + expectedValue);
                     return false;
                 }
-            }
+            } else if (variables.containsKey(expectedValue)){
+                 Integer right = variables.get(expectedValue);
+                 try {
+                    return (Integer.parseInt(varName)==right ) ||(Integer.parseInt(varName) < right) ;
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + expectedValue);
+                    return false;
+                }
+             }
         }else if (condition.contains(">=")){
             String[] parts = condition.split(">=");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
-                if (variables.containsKey(varName)) { // checks if variable is numeric
+               if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
+                 Integer varValue = variables.get(varName);
+                 Integer right = variables.get(expectedValue);
+                 return (varValue == right) ||(varValue > right) ;
+             } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
                     int expected = Integer.parseInt(expectedValue);
@@ -176,12 +240,25 @@ public class MinimalInterpreter {
                     System.out.println("Invalid number format: " + expectedValue);
                     return false;
                 }
+            } else if (variables.containsKey(expectedValue)){
+                 Integer right = variables.get(expectedValue);
+                 try {
+                    return (Integer.parseInt(varName)==right ) ||(Integer.parseInt(varName) > right) ;
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + varName);
+                    return false;
+                }
+
             }
         }else if (condition.contains("<")) {
             String[] parts = condition.split("<");
             String varName = parts[0].trim();
             String expectedValue = parts[1].trim();
-            if (variables.containsKey(varName)) {
+            if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
+                 Integer varValue = variables.get(varName);
+                 Integer right = variables.get(expectedValue);
+                 return varValue < right ;
+             } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
                     int expected = Integer.parseInt(expectedValue);
@@ -190,21 +267,41 @@ public class MinimalInterpreter {
                     System.out.println("Invalid number format: " + expectedValue);
                     return false;
                 }
-            }
+            } else if (variables.containsKey(expectedValue)){
+                 Integer right = variables.get(expectedValue);
+                 try {
+                    return Integer.parseInt(varName) < right ;
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + varName);
+                    return false;
+                }
+             }
         } else if (condition.contains(">")) {
         String[] parts = condition.split(">");
         String varName = parts[0].trim();
         String expectedValue = parts[1].trim();
-        if (variables.containsKey(varName)) {
-            Integer varValue = variables.get(varName);
-            try {
-                int expected = Integer.parseInt(expectedValue);
-                return varValue > expected;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number format: " + expectedValue);
-                return false;
-            }
-        }
+        if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
+                 Integer varValue = variables.get(varName);
+                 Integer right = variables.get(expectedValue);
+                 return varValue > right;
+             } else if (variables.containsKey(varName)) {
+                Integer varValue = variables.get(varName);
+                try {
+                    int expected = Integer.parseInt(expectedValue);
+                    return varValue > expected;
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + expectedValue);
+                    return false;
+                }
+            } else if (variables.containsKey(expectedValue)){
+                 Integer right = variables.get(expectedValue);
+                 try {
+                    return Integer.parseInt(varName) > right;
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number format: " + expectedValue);
+                    return false;
+                }
+             }
     } else if (condition.equals("true")) {
             return true;
         } else if (condition.equals("false")) {
@@ -239,7 +336,7 @@ public class MinimalInterpreter {
                 stringvar.remove(varName);
                 boolvar.remove(varName);
             }
-            Integer value = evaluateExpression(expression);
+            Integer value = evaluateSimpleExpression(expression);
             variables.put(varName, value);
         }
     }
@@ -248,23 +345,8 @@ public class MinimalInterpreter {
         return expression.equals("true");
     }
 
-    private Integer evaluateExpression(String expression) {
-        expression = expression.replaceAll("\\s", "");
-
-        while (expression.contains("(")) { // evaluates nested expressions
-            int openIndex = expression.lastIndexOf("("); // find innermost opening parenthesis
-            int closeIndex = expression.indexOf(")", openIndex); // find corresponding closing parenthesis
-            String subExpression = expression.substring(openIndex + 1, closeIndex);
-            int subResult = evaluateSimpleExpression(subExpression);
-            expression = expression.substring(0, openIndex) + subResult + expression.substring(closeIndex + 1);
-        }
-
-        return evaluateSimpleExpression(expression); // evaluate simplified expression
-    }
-
   private int evaluateSimpleExpression(String expression) {
-    expression = expression.replaceAll("\\s", ""); // Remove spaces
-
+      expression = expression.replaceAll("\\s", ""); // Remove spaces
     while (expression.contains("**")) {
         int opIndex = expression.indexOf("**");
         int leftOperand = extractLeftOperand(expression, opIndex - 1);
@@ -401,18 +483,18 @@ private void handlePrint(String line) {
         System.out.println(stringvar.get(expr));
     } else {
         // Evaluate the expression as a numeric one if it's not a string or boolean
-        int result = evaluateExpression(expr);
+        int result = evaluateSimpleExpression(expr);
 
 
-            System.out.println(result);
+            System.out.println(result); // Print as double if not integer
 
     }
 }
 public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
         String prog = """
-          
-""";
+
+                   """;
         interpreter.eval(prog);
     }
 
