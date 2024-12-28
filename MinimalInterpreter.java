@@ -1,7 +1,6 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.*;
-
 public class MinimalInterpreter {
     private final Map<String, Integer> variables = new HashMap<>();
     private final Map<String, Boolean> boolvar = new HashMap<>();
@@ -132,7 +131,7 @@ public class MinimalInterpreter {
             } else if (variables.containsKey(varName)&&variables.containsKey(expectedValue)) {
                 Integer varValue = variables.get(varName);
                 Integer right = variables.get(expectedValue);
-                return varValue == right;
+                return Objects.equals(varValue, right);
             } else if (variables.containsKey(varName)){
                  Integer varValue = variables.get(varName);
                  try {
@@ -178,7 +177,7 @@ public class MinimalInterpreter {
             } else if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
                  Integer varValue = variables.get(varName);
                  Integer right = variables.get(expectedValue);
-                 return (varValue!=right);
+                 return (!Objects.equals(varValue, right));
             } else if(variables.containsKey(expectedValue)){
                  Integer right = variables.get(expectedValue);
                  try {
@@ -204,7 +203,7 @@ public class MinimalInterpreter {
              if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
                  Integer varValue = variables.get(varName);
                  Integer right = variables.get(expectedValue);
-                 return (varValue == right) ||(varValue < right) ;
+                 return (Objects.equals(varValue, right)) ||(varValue < right) ;
              } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
@@ -230,7 +229,7 @@ public class MinimalInterpreter {
                if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
                  Integer varValue = variables.get(varName);
                  Integer right = variables.get(expectedValue);
-                 return (varValue == right) ||(varValue > right) ;
+                 return (Objects.equals(varValue, right)) ||(varValue > right) ;
              } else if (variables.containsKey(varName)) {
                 Integer varValue = variables.get(varName);
                 try {
@@ -494,7 +493,8 @@ public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
         String prog = """
 
-                   """;
+
+    """;
         interpreter.eval(prog);
     }
 
