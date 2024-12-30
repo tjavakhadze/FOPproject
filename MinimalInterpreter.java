@@ -1,105 +1,116 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.*;
+
 public class MinimalInterpreter {
     private final Map<String, Integer> variables = new HashMap<>();
     private final Map<String, Boolean> boolvar = new HashMap<>();
     private final Map<String, String> stringvar = new HashMap<>();
 
-    public void eval(String code) {
-    String[] lines = code.split("\n");
-    boolean insideIf = false;
-    boolean ifCondition = false;
-    boolean insideWhile = false;
-    StringBuilder block = new StringBuilder();
-    int whileStartIndex = -1;
+    class Block {
+        public int ind;
+        public String content;
 
-    try {
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i].trim();
-            if (line.isEmpty()) continue;
+        public Block(String content, int ind) {
+            this.ind = ind;
+            this.content = content;
+        }
+    }
 
-            if (line.startsWith("if")) {
-                insideIf = true;
-                String condition = line.substring(2).trim();
-                ifCondition = evaluateCondition(condition);
-                continue;
+
+    public Block getBlock(String[] lines, int ind) {
+
+        StringBuilder sb = new StringBuilder();
+        int count = 1;
+        while (ind < lines.length) {
+            String line = lines[ind].trim();
+            if (line.startsWith("if") || line.startsWith("while")) {
+                count++;
+            } else if (line.startsWith("end")) {
+                count--;
             }
+            if (count == 0) break;
+            sb.append(line + "\n");
+            ind++;
+        }
+
+        if (count != 0) {
+        throw new RuntimeException("Syntax Error: Mismatched block delimiters.");
+        }
+        return new Block(sb.toString(), ind);
+    }
+
+    public String getIfElseBlock(String code, boolean condition) {
+        Boolean hasElse = false;
+        String[] lines = code.split("\n");
+        int d = 1;
+        int elseInd = -1;
+
+        for (int i=0; i<lines.length; i++) {
+            String line = lines[i].trim();
+            if (line.startsWith("if")) d++;
+            else if (line.startsWith("else")) d--;
+
+            if (d == 0) {
+                elseInd = i;
+                break;
+            }
+        }
+
+        StringBuilder ifBlock = new StringBuilder(elseInd == -1? code: "");
+        StringBuilder elseBlock = new StringBuilder("");
+
+        int k = 0;
+        if (elseInd != -1) while (k != elseInd) ifBlock.append(lines[k++] + "\n");
+        if (elseInd != -1) {
+            int eI = elseInd + 1;
+            while(eI < lines.length) {
+                elseBlock.append(lines[eI++]+ "\n");
+            }
+        }
+
+        return condition ? ifBlock.toString() : elseBlock.toString();
+    }
+
+    public void eval2(String code) {
+        String[] lines = code.split("\n");
+        int i = 0;
+
+        while (i < lines.length) {
+            String line = lines[i].trim();
 
             if (line.startsWith("while")) {
-                insideWhile = true;
-                whileStartIndex = i;
+                Block block = getBlock(lines, i + 1);
+                String content = block.content;
+
+                i = block.ind;
                 String condition = line.substring(5).trim();
 
                 while (evaluateCondition(condition)) {
-                    evalBlock(block.toString());
-                    block.setLength(0);
-
-                    for (int j = whileStartIndex + 1; j < lines.length; j++) {
-                        String loopLine = lines[j].trim();
-                        if (loopLine.startsWith("end")) {
-                            break;
-                        }
-                        block.append(loopLine).append("\n");
-                    }
+                    eval2(content);
                 }
 
-                while (i < lines.length && !lines[i].trim().equals("end") && (!insideIf)) {
-                    i++;
-                }
-                insideWhile = false;
-                block.setLength(0);
-                continue;
-            }
+            } else if (line.startsWith("if")) {
+                Block block = getBlock(lines, i + 1);
+                String content = block.content;
 
-            if (insideWhile) {
-                if (line.startsWith("end")) {
-                    evalBlock(block.toString());
-                    block.setLength(0); // reset the block
-                    String condition = lines[whileStartIndex].substring(5).trim(); // reevaluate condition
-                    if (evaluateCondition(condition)) {
-                        i = whileStartIndex; // restart loop if condition is true
-                    } else {
-                        insideWhile = false; // exit loop if condition is false
-                    }
-                    continue;
-                }
-                block.append(line).append("\n"); // add line to the 'while' block
-            }
+                i = block.ind;
+                String condition = line.substring(2).trim();
+                Boolean ifCondition = evaluateCondition(condition);
 
-            if (insideIf) {
-                if (line.startsWith("else")) { // entering 'else' block
-                    if (ifCondition) {
-                        evalBlock(block.toString()); // execute 'if' block if condition was true
-                    }
-                    block.setLength(0); // reset block for 'else'
-                    continue;
-                } else if (line.startsWith("end")) { // end of 'if-else' block
-                    if (!ifCondition) {
-                        evalBlock(block.toString()); // execute 'else' block if 'if' condition was false
-                    }
-                    insideIf = false; // exit 'if'
-                    block.setLength(0); // reset the block
-                    continue;
-                }
-                block.append(line).append("\n"); // add line to 'if' or 'else' block
+                String ifElseBlock = getIfElseBlock(content, ifCondition);
+
+                eval2(ifElseBlock);
             } else {
-                if (line.contains("=") && !line.contains("<=") && !line.contains(">=") && !line.contains("==") && !line.contains("!=")) {
-                    handleAssignment(line); // handle variable assignment
-                }
-                else if (line.startsWith("puts") || line.startsWith("print")) {
+                if (line.startsWith("puts") || line.startsWith("print")) {
                     handlePrint(line); // handle print statements
                 } else {
-                    // Throwing the exception for illegal argument
-                    throw new IllegalArgumentException("Illegal argument or unstated operation in line: " + line);
+                    evalBlock(line);
                 }
             }
+            i++;
         }
-    } catch (IllegalArgumentException e) {
-        // Handling the illegal argument exception
-        System.err.println("Error: " + e.getMessage());
     }
-}
 
     private void evalBlock(String block) {
         String[] lines = block.split("\n");
@@ -114,7 +125,9 @@ public class MinimalInterpreter {
             }
         }
     }
-    private boolean evaluateCondition(String condition) {
+
+
+       private boolean evaluateCondition(String condition) {
         if (condition.contains("&&")) {
             String[] parts = condition.split("&&");
             return evaluateCondition(parts[0].trim()) && evaluateCondition(parts[1].trim());
@@ -123,209 +136,23 @@ public class MinimalInterpreter {
             String[] parts = condition.split("\\|\\|");
             return evaluateCondition(parts[0].trim()) || evaluateCondition(parts[1].trim());
         }
-        if (condition.contains("==")) {
-            String[] parts = condition.split("==");
-            String varName = parts[0].trim();
-            String expectedValue = parts[1].trim();
 
-            if (boolvar.containsKey(varName)&&boolvar.containsKey(expectedValue)) {
-                Boolean varValue = boolvar.get(varName);
-                Boolean right = boolvar.get(expectedValue);
-                return varValue.toString().equals(right.toString());
-            }else if (boolvar.containsKey(varName)) {
-                Boolean varValue = boolvar.get(varName);
-                return varValue.toString().equals(expectedValue);
-            } else if (boolvar.containsKey(expectedValue)) {
-                Boolean right = boolvar.get(expectedValue);
-                return right.toString().equals((varName));
-            } else if (variables.containsKey(varName)&&variables.containsKey(expectedValue)) {
-                Integer varValue = variables.get(varName);
-                Integer right = variables.get(expectedValue);
-                return Objects.equals(varValue, right);
-            } else if (variables.containsKey(varName)){
-                Integer varValue = variables.get(varName);
-                try {
-                    return varValue == Integer.parseInt(expectedValue);
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + expectedValue);
-                    return false;
-                }
-            }else if (variables.containsKey(expectedValue)){
-                Integer right = variables.get(expectedValue);
-                try {
-                    return right == Integer.parseInt(varName);
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + varName);
-                    return false;
-                }
-            }
-            else if (stringvar.containsKey(varName)&&stringvar.containsKey(expectedValue)) {
-                String varValue = stringvar.get(varName);
-                String right = stringvar.get(expectedValue);
-                return varValue.equals(right);
-            } else if(stringvar.containsKey(varName)){
-                String varValue = stringvar.get(varName);
-                return varValue.equals(expectedValue);
-            }else if(stringvar.containsKey(expectedValue)){
-                String right = stringvar.get(expectedValue);
-                return right.equals(varName);
-            }
-        }if (condition.contains("!=")) {
-            String[] parts = condition.split("!=");
-            String varName = parts[0].trim();
-            String expectedValue = parts[1].trim();
-            if (boolvar.containsKey(varName)&&boolvar.containsKey(expectedValue)) {
-                Boolean varValue = boolvar.get(varName);
-                Boolean right = boolvar.get(expectedValue);
-                return !(varValue.toString().equals(right.toString()));
-            }else if (boolvar.containsKey(varName)) {
-                Boolean varValue = boolvar.get(varName);
-                return !(varValue.toString().equals(expectedValue));
-            } else if (boolvar.containsKey(expectedValue)) {
-                Boolean right = boolvar.get(expectedValue);
-                return !(right.toString().equals(varName));
-            } else if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                Integer varValue = variables.get(varName);
-                Integer right = variables.get(expectedValue);
-                return (!Objects.equals(varValue, right));
-            } else if(variables.containsKey(expectedValue)){
-                Integer right = variables.get(expectedValue);
-                try {
-                    return right != Integer.parseInt(varName);
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + varName);
-                    return false;
-                }
-            } else if (variables.containsKey(varName)) {
-                Integer varValue = variables.get(varName);
-                try {
-                    int expected = Integer.parseInt(expectedValue);
-                    return varValue != expected;
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + expectedValue);
-                    return false;
-                }
-            }
-        } else if (condition.contains("<=")){
-            String[] parts = condition.split("<=");
-            String varName = parts[0].trim();
-            String expectedValue = parts[1].trim();
-            if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                Integer varValue = variables.get(varName);
-                Integer right = variables.get(expectedValue);
-                return (Objects.equals(varValue, right)) ||(varValue < right) ;
-            } else if (variables.containsKey(varName)) {
-                Integer varValue = variables.get(varName);
-                try {
-                    int expected = Integer.parseInt(expectedValue);
-                    return (varValue == expected) ||(varValue < expected) ;
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + expectedValue);
-                    return false;
-                }
-            } else if (variables.containsKey(expectedValue)){
-                Integer right = variables.get(expectedValue);
-                try {
-                    return (Integer.parseInt(varName)==right ) ||(Integer.parseInt(varName) < right) ;
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + expectedValue);
-                    return false;
-                }
-            }
-        }else if (condition.contains(">=")){
-            String[] parts = condition.split(">=");
-            String varName = parts[0].trim();
-            String expectedValue = parts[1].trim();
-            if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                Integer varValue = variables.get(varName);
-                Integer right = variables.get(expectedValue);
-                return (Objects.equals(varValue, right)) ||(varValue > right) ;
-            } else if (variables.containsKey(varName)) {
-                Integer varValue = variables.get(varName);
-                try {
-                    int expected = Integer.parseInt(expectedValue);
-                    return (varValue == expected) ||(varValue > expected) ;
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + expectedValue);
-                    return false;
-                }
-            } else if (variables.containsKey(expectedValue)){
-                Integer right = variables.get(expectedValue);
-                try {
-                    return (Integer.parseInt(varName)==right ) ||(Integer.parseInt(varName) > right) ;
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + varName);
-                    return false;
-                }
-
-            }
-        }else if (condition.contains("<")) {
-            String[] parts = condition.split("<");
-            String varName = parts[0].trim();
-            String expectedValue = parts[1].trim();
-            if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                Integer varValue = variables.get(varName);
-                Integer right = variables.get(expectedValue);
-                return varValue < right ;
-            } else if (variables.containsKey(varName)) {
-                Integer varValue = variables.get(varName);
-                try {
-                    int expected = Integer.parseInt(expectedValue);
-                    return varValue < expected;
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + expectedValue);
-                    return false;
-                }
-            } else if (variables.containsKey(expectedValue)){
-                Integer right = variables.get(expectedValue);
-                try {
-                    return Integer.parseInt(varName) < right ;
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + varName);
-                    return false;
-                }
-            }
-        } else if (condition.contains(">")) {
-            String[] parts = condition.split(">");
-            String varName = parts[0].trim();
-            String expectedValue = parts[1].trim();
-            if(variables.containsKey(varName)&&variables.containsKey(expectedValue)){
-                Integer varValue = variables.get(varName);
-                Integer right = variables.get(expectedValue);
-                return varValue > right;
-            } else if (variables.containsKey(varName)) {
-                Integer varValue = variables.get(varName);
-                try {
-                    int expected = Integer.parseInt(expectedValue);
-                    return varValue > expected;
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + expectedValue);
-                    return false;
-                }
-            } else if (variables.containsKey(expectedValue)){
-                Integer right = variables.get(expectedValue);
-                try {
-                    return Integer.parseInt(varName) > right;
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format: " + expectedValue);
-                    return false;
-                }
-            }
-        } else if (condition.equals("true")) {
-            return true;
-        } else if (condition.equals("false")) {
-            return false;
-        }
-        return false;
+        return (boolean) evaluateSimpleExpression(condition);
     }
+
+
     private void handleAssignment(String line) {
         String[] parts = line.split("=");
         if (parts.length < 2) {
-            System.out.println("Invalid assignment syntax: " + line);
-            return;
-        }
+        throw new RuntimeException("Syntax Error: Invalid assignment syntax in line - " + line);
+    }
         String varName = parts[0].trim();
         String expression = parts[parts.length-1].trim();
+
+         if (varName.isEmpty() || expression.isEmpty()) {
+        throw new RuntimeException("Syntax Error: Variable name or expression is missing in assignment.");
+    }
+
         if (expression.startsWith("\"") && expression.endsWith("\"")) { // handles string assignments
             if(variables.containsKey(varName)||boolvar.containsKey(varName)){
                 variables.remove(varName);
@@ -360,9 +187,8 @@ public class MinimalInterpreter {
         }
 
         expression = expression.replaceAll("\\s", "");
-        expression = expression.replaceAll("\\s", ""); // Remove spaces
-
-        // Check if there's a comparison operator, if so, split based on the first operator found
+        expression = expression.replaceAll("\\s", "");
+        // Check if theres a comparison operator split based on the first operator found
         String operator = null;
         String leftPart = null;
         String rightPart = null;
@@ -400,21 +226,21 @@ public class MinimalInterpreter {
             rightPart = parts[1].trim();
         }
 
-        // If no comparison operator found, treat the whole expression as a math expression
+        // If no comparison operator found treat the whole expression as a math expression
         if (operator == null) {
             leftPart = expression;
             rightPart = null;
         }
 
-        // First, evaluate the mathematical expressions in both parts
+        // evaluate the mathematical expressions in both parts
         int leftResult = evaluateMath(leftPart);
         int rightResult = (rightPart != null) ? evaluateMath(rightPart) : 0; // Right part may be null for non-comparison cases
 
-        // If there is no comparison operator, return the result of the mathematical evaluation
+        // If there is no comparison operator return the result of the mathematical evaluation
         if (operator == null) {
             return leftResult;
         }
-        // Now compare the results based on the operator
+        // compare the results based on the operator
         return switch (operator) {
             case "==" -> leftResult == rightResult;
             case "!=" -> leftResult != rightResult;
@@ -426,55 +252,68 @@ public class MinimalInterpreter {
         };
     }
 
-    private int evaluateMath(String part) {
-        // Split the mathematical expression into terms
-        String[] terms = part.split("(?=[-+*/%])|(?<=[-+*/%])");
-        List<String> termList = new ArrayList<>(Arrays.asList(terms));
+private int evaluateMath(String part) {
+    // Split the mathematical expression into terms
+    String[] terms = part.split("(?=[-+*/%])|(?<=[-+*/%])");
+    List<String> termList = new ArrayList<>(Arrays.asList(terms));
 
-        // Handle '*' '/' '%'
-        for (int i = 0; i < termList.size(); i++) {
-            String term = termList.get(i);
-            if ("*/%".contains(term)) {
-                int leftOperand = parseOperand(termList.get(i - 1));
-                int rightOperand = parseOperand(termList.get(i + 1));
-                int result;
-
-                switch (term) {
-                    case "*" -> result = leftOperand * rightOperand;
-                    case "/" -> {
-                        if (rightOperand != 0) {
-                            result = leftOperand / rightOperand;
-                        } else {
-                            throw new ArithmeticException("Division by zero.");
-                        }
-                    }
-                    case "%" -> result = leftOperand % rightOperand;
-                    default -> throw new IllegalStateException("Unexpected operator: " + term);
-                }
-
-                // Replace the operands and operator with the result
-                termList.set(i - 1, String.valueOf(result));
-                termList.remove(i); // Remove the operator
-                termList.remove(i); // Remove the right operand
-                i--; // Adjust index after removal
-            }
+    // Handle **
+    for (int i = 0; i < termList.size(); i++) {
+        if (termList.get(i).equals("*") && i + 1 < termList.size() && termList.get(i + 1).equals("*")) {
+            int leftOperand = parseOperand(termList.get(i - 1));
+            int rightOperand = parseOperand(termList.get(i + 2));
+            int result = (int) Math.pow(leftOperand, rightOperand);
+            termList.set(i - 1, String.valueOf(result));
+            termList.remove(i); // Remove first '*'
+            termList.remove(i); // Remove second '*'
+            termList.remove(i); // Remove right operand
+            i--; // Adjust index
         }
-
-        // Handle '+' and '-'
-        int result = parseOperand(termList.get(0));
-        for (int i = 1; i < termList.size(); i += 2) {
-            String operator = termList.get(i);
-            int operand = parseOperand(termList.get(i + 1));
-
-            if (operator.equals("+")) {
-                result += operand;
-            } else if (operator.equals("-")) {
-                result -= operand;
-            }
-        }
-
-        return result;
     }
+
+    // Handle * / %
+    for (int i = 0; i < termList.size(); i++) {
+        String term = termList.get(i);
+        if ("*/%".contains(term)) {
+            int leftOperand = parseOperand(termList.get(i - 1));
+            int rightOperand = parseOperand(termList.get(i + 1));
+            int result;
+
+            switch (term) {
+                case "*" -> result = leftOperand * rightOperand;
+                case "/" -> {
+                    if (rightOperand != 0) {
+                        result = leftOperand / rightOperand;
+                    } else {
+                        throw new ArithmeticException("Division by zero.");
+                    }
+                }
+                case "%" -> result = leftOperand % rightOperand;
+                default -> throw new IllegalStateException("Unexpected operator: " + term);
+            }
+
+            termList.set(i - 1, String.valueOf(result));
+            termList.remove(i); // Remove the operator
+            termList.remove(i); // Remove the right operand
+            i--; // Adjust index
+        }
+    }
+
+    // Handle + and -
+    int result = parseOperand(termList.get(0));
+    for (int i = 1; i < termList.size(); i += 2) {
+        String operator = termList.get(i);
+        int operand = parseOperand(termList.get(i + 1));
+
+        if (operator.equals("+")) {
+            result += operand;
+        } else if (operator.equals("-")) {
+            result -= operand;
+        }
+    }
+
+    return result;
+}
 
     private int parseOperand(String term) {
         if (variables.containsKey(term)) {
@@ -507,29 +346,27 @@ public class MinimalInterpreter {
             System.out.println(expr.substring(1, expr.length() - 1));
         }else if (expr.equals("true") || expr.equals("false")) {
             System.out.println(expr);
-        } else if (boolvar.containsKey(expr)) { // Check if it's a boolean variable
+        } else if (boolvar.containsKey(expr)) { // Check if its a boolean
             Boolean varValue = boolvar.get(expr);
             System.out.println(varValue);
-        } else if (variables.containsKey(expr)) { // Check if it's a numeric variable
+        } else if (variables.containsKey(expr)) { // or numeric
             Integer varValue = variables.get(expr);
             if (varValue != null) {
                 System.out.println(varValue);
-
             }
-        } else if (stringvar.containsKey(expr)) { // Check if it's a string variable
+        } else if (stringvar.containsKey(expr)) { //or string
             System.out.println(stringvar.get(expr));
         } else {
-            // Evaluate the expression as a numeric one if it's not a string or boolean
             Object result = evaluateSimpleExpression(expr);
             System.out.println(result);
         }
     }
+
     public static void main(String[] args) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
-        String prog = """
-           
- 
-n = 10
+
+        String fib= """
+                n = 10
 fib = 0
 fiba = 1
 count = 0 
@@ -541,7 +378,133 @@ while count < n
 end
 
 puts fiba
-         """;
-        interpreter.eval(prog);
+                """;
+
+        String multable= """
+                n = 5
+          k = 1
+         while k <= 10
+          puts k*n
+          k = k+1
+         end
+                """;
+
+        String digitsum= """
+                n=45
+sum = 0
+  while n > 0
+    sum = sum + n % 10
+    n = n / 10
+  end
+  print sum
+                """;
+        String largestdig= """
+                n = 3947
+res = 0
+
+while n > 0
+  digit = n % 10
+  if digit > res
+    res = digit
+  end
+  n = n / 10
+end
+
+print res
+                """;
+
+   String palindrome= """
+            n = 121
+ original = n
+  reversed = 0
+  while n > 0
+    reversed = reversed * 10 + n % 10
+    n = n / 10
+  end
+  
+  if original == reversed 
+   puts "true"
+  else
+   puts "false"
+  end
+           """;
+
+      String isprime= """
+     n=7
+     i=2
+     res = true
+     if n<1
+     res= false
+     end
+     if n==1
+     res= "neither"
+     end
+     while i>=2 && i<n 
+       if n % i == 0
+         res = false
+         i = n
+       end
+        i = i + 1
+     end
+     
+     puts res
+              """  ;
+
+String reverse = """
+        
+ number = 1234 
+       digit = 0 
+       reversed = 0 
+      while number != 0 
+       digit = number % 10 
+       reversed = reversed * 10 + digit 
+       number = number/10 
+      end 
+      
+      puts reversed
+        """;
+
+      String gcd = """ 
+           a = 48
+           b = 18
+           temp = 0
+         while b != 0
+          temp = b
+          b = a % b
+          a = temp
+         end
+           puts a
+          """;
+
+
+String fac = """
+          n = 5
+          fac = 1
+         while n > 1
+          fac = n * fac
+          n = n - 1
+         end
+         puts fac
+          """;
+
+
+     String sum = """ 
+            n = 5
+          sum = 0
+         while n>0
+          sum = sum + n
+          n = n - 1
+         end
+         puts sum
+          """;
+
+     String prog = """
+         n=5
+         while n>0
+          puts n
+          n=n-1
+         end
+             """;
+           interpreter.eval2(prog);
     }
 }
