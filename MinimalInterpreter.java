@@ -1,14 +1,13 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.*;
-//final test
 public class MinimalInterpreter {
     private final Map<String, Integer> variables = new HashMap<>();
     private final Map<String, Boolean> boolvar = new HashMap<>();
     private final Map<String, String> stringvar = new HashMap<>();
 
    class Block {
-    public int ind; // stores index of block end
+    public int ind; /// stores index of block end
     public String content; // stores content of the block
 
     public Block(String content, int ind) { // constructor to initialize block
