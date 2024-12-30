@@ -2,20 +2,20 @@
 My assignment was to write a ruby>java interpreter.
 Since I am doing this project on my own, I have taken on all the group roles, so I won't mention them.
 This is the User Guide:
-My interpreter is quite easy to use, you just have to create an instance of the class MinimalInterpreter in the main method and then call on the eval method of the minimalinterpreter object and pass a Ruby code (as string) as an argument, like so:
+My interpreter is quite easy to use, you just have to create an instance of the class MinimalInterpreter in the main method and then call on the eval2 method of the minimalinterpreter object and pass a Ruby code (as string) as an argument, like so:
 
 MinimalInterpreter interpreter = new MinimalInterpreter();
 String prog = """
            puts "Hello World"
               """;
-interpreter.eval(prog);
+interpreter.eval2(prog);
 
 Here are some of the things my code can do:
-   * It can print thing with puts, print, puts(...) and print(...)
+   * It can print thing with puts, print, puts(...) and print(...): 
       puts true
       print("hey")
       ...
-   * It can store variables and overwrite them
+   * It can store variables and overwrite them:    
      x=3
      puts x
      (output:3)
@@ -23,28 +23,29 @@ Here are some of the things my code can do:
      puts x
      (output:hi)
      ...
-   * It can perform arithmetic operations, both simple(4+2) and complicated (3+5*3**2)
+   * It can perform arithmetic operations, both simple(4+2) and complicated (3+5*3**2):    
      puts 4+3*5
-   * It can understand > < = != >= <= == && || operations
+   * It can understand > < = != >= <= == && || operations:    
      n=3
      if n>=2 && n<4
        puts "Hello"
      end
 
      puts 4-1>=3
-   * It implements If else blocks
+   * It implements If else blocks:     
          if x>5 || x==3
             puts "nice"
          else
             puts 0
          end
-   * It implements while loops
+   * It implements while loops:    
        n=5
        while n>0
           puts n
           n=n-1
        end
    * Basic error handling
+   * Keep in mind that each assignment needs to be on a different line, as you can see in the code file. Im unable to show that in this document because it keeps stacking them together.
 
 Algorithm tests:
 
