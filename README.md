@@ -17,7 +17,7 @@ Here are some of the things my code can do:
      
       print("hey")
      
-      ...
+
    * It can store variables and overwrite them:
       
      x=3
@@ -28,7 +28,7 @@ Here are some of the things my code can do:
      
      puts x
      
-     ...
+
    * It can perform arithmetic operations:
       
      puts 4+3*5
@@ -48,14 +48,11 @@ Here are some of the things my code can do:
    * It implements If else blocks:
      
          if x>5 || x==3
-     
             puts "nice"
-     
          else
-     
             puts 0
-     
          end
+     
    * It implements while loops:
      
        n=5
@@ -76,6 +73,7 @@ Algorithm tests:
 -SUM OF FIRST N NUMS-
 
   String prog = """
+  
           n = 5
           sum = 0
          while n>0
@@ -83,11 +81,13 @@ Algorithm tests:
           n = n - 1
          end
          puts sum
+         
           """;
 
 -FACTORIAL OF N-
 
 String prog = """
+
           n = 5
           fac = 1
          while n > 1
@@ -95,6 +95,7 @@ String prog = """
           n = n - 1
          end
          puts fac
+         
          """;
 
 -GCD-
