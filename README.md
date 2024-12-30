@@ -10,22 +10,26 @@ My interpreter is quite easy to use, you just have to create an instance of the 
               """;
      interpreter.eval2(prog);
 
-Here are some of the things my code can do with examples:
+Language Subset Specification with examples:
+
+*  Variable assignment
+•  Arithmetic operations (+, -, *, /, %, **)
+•  Conditional statements (if, else)
+•  Iterative control flow (while loop)
+•  Basic output operations
+*  Syntax error detection
+
    * It can print thing with puts, print, puts(...) and print(...):
      
          puts true
-     
          print("hey")
      
 
    * It can store variables and overwrite them:
       
          x=3
-     
          puts x
-     
          x="hi"
-     
          puts x
      
 
@@ -43,6 +47,7 @@ Here are some of the things my code can do with examples:
      
    * It implements If else blocks:
      
+         x=6
          if x>5 || x==3
             puts "nice"
          else
@@ -58,7 +63,7 @@ Here are some of the things my code can do with examples:
          end
      
    * Basic error handling
-   * Keep in mind that each assignment needs to be on a different line, as you can see in the code file. Im unable to show that in this document because it keeps stacking them together.
+   * Keep in mind that each assignment needs to be on a different line, as you can see in the code file.
 
 Algorithm tests:
 
