@@ -6,44 +6,40 @@ My interpreter is quite easy to use, you just have to create an instance of the 
 
 MinimalInterpreter interpreter = new MinimalInterpreter();
 String prog = """
-           puts "Hello World"
+       puts "Hello World"
               """;
 interpreter.eval2(prog);
 
 Here are some of the things my code can do:
    * It can print thing with puts, print, puts(...) and print(...):
      
-      puts true
+         puts true
      
-      print("hey")
+         print("hey")
      
 
    * It can store variables and overwrite them:
       
-     x=3
+         x=3
      
-     puts x
+         puts x
      
-      x="hi"
+         x="hi"
      
-     puts x
+         puts x
      
 
    * It can perform arithmetic operations:
       
-     puts 4+3*5
+         puts 4+3*5
      
    * It can understand > < = != >= <= == && || operations:
      
-     n=3
-     
-     if n>=2 && n<4
-     
-       puts "Hello"
-     
-     end
-
-     puts 4-1>=3
+         n=3
+         if n>=2 && n<4
+         puts "Hello"
+         end
+         puts 4-1>=3
      
    * It implements If else blocks:
      
@@ -55,15 +51,11 @@ Here are some of the things my code can do:
      
    * It implements while loops:
      
-       n=5
-     
-       while n>0
-     
+         n=5
+         while n>0
           puts n
-     
           n=n-1
-     
-       end
+         end
      
    * Basic error handling
    * Keep in mind that each assignment needs to be on a different line, as you can see in the code file. Im unable to show that in this document because it keeps stacking them together.
@@ -82,7 +74,7 @@ Algorithm tests:
          end
          puts sum
          
-          """;
+ """;
 
 -FACTORIAL OF N-
 
@@ -96,11 +88,12 @@ String prog = """
          end
          puts fac
          
-         """;
+""";
 
 -GCD-
 
  String prog = """ 
+ 
            a = 48
            b = 18
            temp = 0
@@ -110,82 +103,92 @@ String prog = """
           a = temp
          end
           puts a
-          """;
+          
+ """;
           
 -SUM OF DIGITS-
 
 String prog = """
-n=45
-sum = 0
-  while n > 0
-    sum = sum + n % 10
-    n = n / 10
-  end
-  print sum
-end
-""";
+
+     n=45
+    sum = 0
+    while n > 0
+     sum = sum + n % 10
+     n = n / 10
+    end
+    print sum
+   
+ """;
 
 -MULTIPLICATION TABLE-
 
  String prog = """
+ 
           n = 5
           k = 1
          while k <= 10
           puts k*n
           k = k+1
          end
-          """;
+         
+""";
 
 -N-TH FIB NUM-
 
 String prog = """
-n = 10
-fib = 0
-fiba = 1
-count = 0 
-while count < n
-  fib = fiba + fib 
-  fiba = fib - fiba 
-  count = count + 1  
-end
-puts fiba
 
+    n = 10
+    fib = 0
+    fiba = 1
+    count = 0 
+    while count < n
+    fib = fiba + fib 
+    fiba = fib - fiba 
+    count = count + 1  
+    end
+    puts fiba
+
+"""
 -REVERSE NUM-
 
 String prog = """
-number = 1234
-digit = 0
-reversed = 0
-while number != 0
-  digit = number % 10 
-  reversed = reversed * 10 + digit 
-  number = number/10
-end
-puts reversed
+
+    number = 1234
+    digit = 0
+    reversed = 0
+    while number != 0
+     digit = number % 10 
+     reversed = reversed * 10 + digit 
+     number = number/10
+    end
+    puts reversed
 
 """;
 
 -PALINDROME-
 
 String prog = """
- n = 123321
- original = n
-  reversed = 0
-  while n > 0
+ 
+    n = 123321
+    original = n
+    reversed = 0
+    while n > 0
     reversed = reversed * 10 + n % 10
     n = n / 10
-  end
+    end
   
-  if original == reversed 
-   puts "true"
-  else
-   puts "false"
-  end
+    if original == reversed 
+    puts "true"
+    else
+    puts "false"
+    end
+    
 """
 
 -ISPRIME-
 
 String prog = """
+
      n=7
      i=2
      res = true
@@ -202,7 +205,7 @@ String prog = """
        end
         i = i + 1
      end     
-puts res
+    puts res
 
 """
 
@@ -210,16 +213,16 @@ puts res
 
 String prog= """
 
-n = 3947
-res = 0
-while n > 0
-  digit = n % 10
-  if digit > res
-    res = digit
-  end
-  n = n / 10
-end
-print res
+    n = 3947
+    res = 0
+    while n > 0
+    digit = n % 10
+    if digit > res
+      res = digit
+    end
+    n = n / 10
+    end
+    print res
 
 """
 
