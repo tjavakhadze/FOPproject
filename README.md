@@ -188,7 +188,10 @@ String prog = """
      n=7
      i=2
      res = true
-     if n<=1
+     if n<1
+     res= false
+     end
+     if n==1
      res= "neither"
      end
      while i>=2 && i<n 
