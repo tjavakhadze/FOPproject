@@ -4,13 +4,13 @@ Since I am doing this project on my own, I have taken on all the group roles, so
 This is the User Guide:
 My interpreter is quite easy to use, you just have to create an instance of the class MinimalInterpreter in the main method and then call on the eval2 method of the minimalinterpreter object and pass a Ruby code (as string) as an argument, like so:
 
-MinimalInterpreter interpreter = new MinimalInterpreter();
-String prog = """
+           MinimalInterpreter interpreter = new MinimalInterpreter();
+        String prog = """
        puts "Hello World"
               """;
-interpreter.eval2(prog);
+     interpreter.eval2(prog);
 
-Here are some of the things my code can do:
+Here are some of the things my code can do with examples:
    * It can print thing with puts, print, puts(...) and print(...):
      
          puts true
