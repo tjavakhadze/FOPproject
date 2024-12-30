@@ -29,9 +29,9 @@ Here are some of the things my code can do:
      puts x
      
      ...
-   * It can perform arithmetic operations, both simple(4+2) and complicated (3+5* 3**2):
+   * It can perform arithmetic operations:
       
-     puts 4+3 *5
+     puts 4+3*5
      
    * It can understand > < = != >= <= == && || operations:
      
