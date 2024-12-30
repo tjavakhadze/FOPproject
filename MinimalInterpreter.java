@@ -1,7 +1,7 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.*;
-
+//final test
 public class MinimalInterpreter {
     private final Map<String, Integer> variables = new HashMap<>();
     private final Map<String, Boolean> boolvar = new HashMap<>();
@@ -125,12 +125,26 @@ private void evalBlock(String block) {
 }
 
 private boolean evaluateCondition(String condition) {
+    if (condition.equals("true")) return true;
+    if (condition.equals("false")) return false;
     if (condition.contains("&&")) { // handle AND condition
         String[] parts = condition.split("&&");
+        String left = parts[0].trim();
+        if (left.equals("true")) {
+            return evaluateCondition(parts[1].trim());
+        } else if (left.equals("false")){
+            return false;
+        }
         return evaluateCondition(parts[0].trim()) && evaluateCondition(parts[1].trim());
     }
     if (condition.contains("||")) { // handle OR condition
         String[] parts = condition.split("\\|\\|");
+        String left = parts[0].trim();
+        if (left.equals("true")) {
+            return true;
+        } else if (left.equals("false")){
+            return evaluateCondition(parts[1].trim());
+        }
         return evaluateCondition(parts[0].trim()) || evaluateCondition(parts[1].trim());
     }
 
@@ -185,6 +199,8 @@ private Object evaluateSimpleExpression(String expression) {
     String operator = null;
     String leftPart = null;
     String rightPart = null;
+
+
 
     // Check for comparison operators and split the expression accordingly
     if (expression.contains("==")) {
@@ -345,7 +361,10 @@ private void handlePrint(String line) {
         if (varValue != null) {
             System.out.println(varValue); // print numeric value
         }
-    } else if (stringvar.containsKey(expr)) { // check if it's a string variable
+    } else if (expr.contains("||") || expr.contains("&&")) { // check if it's a string variable
+        System.out.println(evaluateCondition(expr)); // print string value
+    }
+    else if (stringvar.containsKey(expr)) { // check if it's a string variable
         System.out.println(stringvar.get(expr)); // print string value
     } else {
         Object result = evaluateSimpleExpression(expr); // evaluate and print expression
@@ -357,71 +376,72 @@ private void handlePrint(String line) {
         MinimalInterpreter interpreter = new MinimalInterpreter();
 
         String fib= """
-                n = 10
-fib = 0
-fiba = 1
-count = 0 
+            n = 10
+            fib = 0
+            fiba = 1
+            count = 0 
 
-while count < n
-  fib = fiba + fib 
-  fiba = fib - fiba 
-  count = count + 1  
-end
+            while count < n
+              fib = fiba + fib 
+              fiba = fib - fiba 
+              count = count + 1  
+            end
 
-puts fiba
-                """;
+            puts fiba
+        """;
 
         String multable= """
-                n = 5
-          k = 1
-         while k <= 10
-          puts k*n
-          k = k+1
-         end
-                """;
+            n = 5
+            k = 1
+            while k <= 10
+                puts k*n
+                k = k+1
+            end
+        """;
 
         String digitsum= """
-                n=45
-sum = 0
-  while n > 0
-    sum = sum + n % 10
-    n = n / 10
-  end
-  print sum
-                """;
+            n=45
+            sum = 0
+            while n > 0
+                sum = sum + n % 10
+                n = n / 10
+            end
+            print sum
+        """;
+
         String largestdig= """
-                n = 3947
-res = 0
+            n = 3947
+            res = 0
 
-while n > 0
-  digit = n % 10
-  if digit > res
-    res = digit
-  end
-  n = n / 10
-end
+            while n > 0
+                digit = n % 10
+                if digit > res
+                    res = digit
+                end
+                n = n / 10
+            end
 
-print res
-                """;
+            print res
+        """;
 
    String palindrome= """
-            n = 121
- original = n
-  reversed = 0
-  while n > 0
-    reversed = reversed * 10 + n % 10
-    n = n / 10
-  end
-  
-  if original == reversed 
-   puts "true"
-  else
-   puts "false"
-  end
-           """;
+        n = 121
+        original = n
+        reversed = 0
+        while n > 0
+            reversed = reversed * 10 + n % 10
+            n = n / 10
+        end
+
+        if original == reversed 
+            puts "true"
+        else
+            puts "false"
+        end
+       """;
 
       String isprime= """
-     n=7
+     n=11
      i=2
      res = true
      if n<1
@@ -441,9 +461,9 @@ print res
      puts res
               """  ;
 
-String reverse = """
-        
- number = 1234 
+    String reverse = """
+
+     number = 1234 
        digit = 0 
        reversed = 0 
       while number != 0 
@@ -456,19 +476,19 @@ String reverse = """
         """;
 
       String gcd = """ 
-           a = 48
-           b = 18
-           temp = 0
-         while b != 0
-          temp = b
-          b = a % b
-          a = temp
-         end
-           puts a
-          """;
+       a = 48
+       b = 18
+       temp = 0
+        while b != 0
+            temp = b
+            b = a % b
+            a = temp
+        end
+       puts a
+      """;
 
 
-String fac = """
+        String fac = """
           n = 5
           fac = 1
          while n > 1
@@ -490,11 +510,7 @@ String fac = """
           """;
 
      String prog = """
-         n=5
-         while n>0
-          puts n
-          n=n-1
-         end
+
              """;
         interpreter.eval2(prog);
     }
