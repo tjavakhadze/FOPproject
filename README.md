@@ -33,7 +33,7 @@ Here are some of the things my code can do:
 
      puts 4-1>=3
    * It implements If else blocks
-       if x>5 || x==3
+         if x>5 || x==3
             puts "nice"
          else
             puts 0
