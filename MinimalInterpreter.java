@@ -391,7 +391,7 @@ private void handlePrint(String line) {
         """;
 
         String multable= """
-            n = 5
+            n = 10
             k = 1
             while k <= 10
                 puts k*n
@@ -400,7 +400,7 @@ private void handlePrint(String line) {
         """;
 
         String digitsum= """
-            n=45
+            n=451
             sum = 0
             while n > 0
                 sum = sum + n % 10
@@ -410,7 +410,7 @@ private void handlePrint(String line) {
         """;
 
         String largestdig= """
-            n = 3947
+            n = 320937
             res = 0
 
             while n > 0
@@ -441,14 +441,11 @@ private void handlePrint(String line) {
        """;
 
       String isprime= """
-     n=11
+     n=7
      i=2
      res = true
-     if n<1
+     if n<=1
      res= false
-     end
-     if n==1
-     res= "neither"
      end
      while i>=2 && i<n 
        if n % i == 0
@@ -463,7 +460,7 @@ private void handlePrint(String line) {
 
     String reverse = """
 
-     number = 1234 
+     number = 1234
        digit = 0 
        reversed = 0 
       while number != 0 
@@ -510,8 +507,8 @@ private void handlePrint(String line) {
           """;
 
      String prog = """
-
-             """;
-        interpreter.eval2(prog);
+  
+  """;
+        interpreter.eval2(sum);
     }
 }
