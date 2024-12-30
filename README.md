@@ -1,7 +1,8 @@
 # FOPproject
 My assignment was to write a ruby>java interpreter.
 Since I am doing this project on my own, I have taken on all the group roles, so I won't mention them.
-My interpreter is quite easy to use, you just have to create an instance of the class MinimalInterpreter and then call on the eval method of the minimalinterpreter object and pass a Ruby code (as string) as an argument, like so:
+This is the User Guide:
+My interpreter is quite easy to use, you just have to create an instance of the class MinimalInterpreter in the main method and then call on the eval method of the minimalinterpreter object and pass a Ruby code (as string) as an argument, like so:
 
 MinimalInterpreter interpreter = new MinimalInterpreter();
 String prog = """
@@ -10,10 +11,27 @@ String prog = """
 interpreter.eval(prog);
 
 Here are some of the things my code can do:
-   * It can print thing with puts, print, puts(...) and print(...) 
-   * It can store variables and overwrite them (x=3  puts x (output:3)  x="hi" puts x(output:hi) x=true ... )
+   * It can print thing with puts, print, puts(...) and print(...)
+      puts true
+      print("hey")
+      ...
+   * It can store variables and overwrite them
+     x=3
+     puts x
+     (output:3)
+      x="hi"
+     puts x
+     (output:hi)
+     ...
    * It can perform arithmetic operations, both simple(4+2) and complicated (3+5*3**2)
+     puts 4+3*5
    * It can understand > < = != >= <= == && || operations
+     n=3
+     if n>=2 && n<4
+       puts "Hello"
+     end
+
+     puts 4-1>=3
    * It implements If else blocks
        if x>5 || x==3
             puts "nice"
@@ -21,6 +39,11 @@ Here are some of the things my code can do:
             puts 0
          end
    * It implements while loops
+       n=5
+       while n>0
+          puts n
+          n=n-1
+       end
    * Basic error handling
 
 Algorithm tests:
@@ -132,6 +155,43 @@ String prog = """
   else
    puts "false"
   end
+"""
+
+-ISPRIME-
+
+String prog = """
+     n=7
+     i=2
+     res = true
+     if n<=1
+     res= "neither"
+     end
+     while i>=2 && i<n 
+       if n % i == 0
+         res = false
+         i = n
+       end
+        i = i + 1
+     end     
+puts res
+
+"""
+
+-LARGEST DIGIT-
+
+String prog= """
+
+n = 3947
+res = 0
+while n > 0
+  digit = n % 10
+  if digit > res
+    res = digit
+  end
+  n = n / 10
+end
+print res
+
 """
 
 
