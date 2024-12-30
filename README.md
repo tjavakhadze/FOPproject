@@ -11,39 +11,63 @@ String prog = """
 interpreter.eval2(prog);
 
 Here are some of the things my code can do:
-   * It can print thing with puts, print, puts(...) and print(...): 
+   * It can print thing with puts, print, puts(...) and print(...):
+     
       puts true
+     
       print("hey")
+     
       ...
-   * It can store variables and overwrite them:    
+   * It can store variables and overwrite them:
+      
      x=3
+     
      puts x
-     (output:3)
+     
       x="hi"
+     
      puts x
-     (output:hi)
+     
      ...
-   * It can perform arithmetic operations, both simple(4+2) and complicated (3+5*3**2):    
-     puts 4+3*5
-   * It can understand > < = != >= <= == && || operations:    
+   * It can perform arithmetic operations, both simple(4+2) and complicated (3+5* 3**2):
+      
+     puts 4+3 *5
+     
+   * It can understand > < = != >= <= == && || operations:
+     
      n=3
+     
      if n>=2 && n<4
+     
        puts "Hello"
+     
      end
 
      puts 4-1>=3
-   * It implements If else blocks:     
+     
+   * It implements If else blocks:
+     
          if x>5 || x==3
+     
             puts "nice"
+     
          else
+     
             puts 0
+     
          end
-   * It implements while loops:    
+   * It implements while loops:
+     
        n=5
+     
        while n>0
+     
           puts n
+     
           n=n-1
+     
        end
+     
    * Basic error handling
    * Keep in mind that each assignment needs to be on a different line, as you can see in the code file. Im unable to show that in this document because it keeps stacking them together.
 
